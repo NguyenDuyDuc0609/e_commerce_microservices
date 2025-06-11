@@ -1,0 +1,6 @@
+@SagaCoordinator.Api_HostAddress = http://localhost:5083
+
+GET {{SagaCoordinator.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
