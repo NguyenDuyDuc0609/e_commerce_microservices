@@ -1,11 +1,15 @@
 using AuthService.Application.Interfaces;
 using AuthService.Infrastructure.Persistence;
 using AuthService.Infrastructure.Repositories;
+using AuthService.Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 var builder = WebApplication.CreateBuilder(args);
 
+var redisSettings = builder.Configuration.GetSection("Redis");
+string redisHost = redisSettings["Host"];
+int redisPort = int.Parse(redisSettings["Port"]);
 // Add services to the container.
 
 builder.Services.AddControllers();
@@ -43,9 +47,15 @@ builder.Services.AddSwaggerGen(options =>
         }
     });
 });
-
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration = $"{redisHost}:{redisPort}";
+    options.InstanceName = "Auth_";
+});
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<ITokenService, JwtTokenService>();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 var app = builder.Build();
 if (app.Environment.IsDevelopment())
