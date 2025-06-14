@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace AuthService.Domain.Entities
@@ -54,7 +57,7 @@ namespace AuthService.Domain.Entities
         }
         public void SetPasswordHash(string passwordHash)
         {
-            PasswordHash = passwordHash;
+            passwordHash = EncryptMd5(passwordHash);
             ModifiedDate = DateTimeOffset.UtcNow;
         }
         public void SetEmail(string email)
@@ -72,6 +75,24 @@ namespace AuthService.Domain.Entities
         {
             if (_roles.Any(r => r.RoleId == roleId)) return;
             _roles.Add(new UserRole(UserId, roleId));
+        }
+        private static string EncryptMd5(string password)
+        {
+            MD5 mD5 = MD5.Create();
+            byte[] input = Encoding.UTF8.GetBytes(password);
+            byte[] output = mD5.ComputeHash(input);
+            string passwordHashed = BitConverter.ToString(output).Replace("-", string.Empty);
+            return passwordHashed;
+        }
+        public void SetPhoneNumber(string phoneNumber)
+        {
+            PhoneNumber = phoneNumber;
+            ModifiedDate = DateTimeOffset.UtcNow;
+        }
+        public void SetAddress(string address)
+        {
+            Address = address;
+            ModifiedDate = DateTimeOffset.UtcNow;
         }
     }
 }

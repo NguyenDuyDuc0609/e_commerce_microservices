@@ -12,10 +12,17 @@ namespace AuthService.Infrastructure.Persistence
     {
         private readonly AuthDbContext _context;
         private IDbContextTransaction? _transaction;
-        public UnitOfWork(AuthDbContext context, IDbContextTransaction transaction)
+        public IUserRepository? UserRepository { get; }
+        public IRoleRepository? RoleRepository { get; }
+
+        public IUserRoleRepository? UserRoleRepository { get; }
+
+        public UnitOfWork(AuthDbContext context, IUserRepository? userRepository, IRoleRepository? roleRepository, IUserRoleRepository? userRoleRepository)
         {
             _context = context;
-            _transaction = transaction;
+            UserRepository = userRepository;
+            RoleRepository = roleRepository;
+            UserRoleRepository = userRoleRepository;
         }
         public void BeginTransaction()
         {

@@ -4,11 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AuthService.Application.Features.Users.Login
+namespace AuthService.Application.Features.Users.Dtos
 {
-    public class LoginResponse
+    public class UserDto
     {
-        public object? DataResponse { get; set; }
+        public object? Data { get; set; }
         public string? Message { get; set; }
         public bool IsSuccess { get; set; }
     }

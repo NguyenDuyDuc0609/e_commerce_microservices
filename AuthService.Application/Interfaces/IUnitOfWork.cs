@@ -8,6 +8,9 @@ namespace AuthService.Application.Interfaces
 {
     public interface IUnitOfWork
     {
+        IUserRepository? UserRepository { get; }
+        IRoleRepository? RoleRepository { get; }
+        IUserRoleRepository? UserRoleRepository { get; }
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
         Task CommitAsync();
         void BeginTransaction();
