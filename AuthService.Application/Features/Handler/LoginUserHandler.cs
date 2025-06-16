@@ -22,7 +22,27 @@ namespace AuthService.Application.Features.Handler
         public async Task<UserDto> Handle(LoginUserCommand request, CancellationToken cancellationToken)
         {
             _unitOfWork.BeginTransaction();
-            throw new NotImplementedException("LoginUserHandler is not implemented yet. Please implement the logic to handle user login.");
+            try
+            {
+                if(request.Username == null || request.Password == null)
+                {
+                    return new UserDto
+                    {
+                        IsSuccess = false,
+                        Message = "Username and password cannot be null."
+                    };
+                }
+
+            }
+            catch (Exception ex)
+            {
+                await _unitOfWork.RollbackAsync();
+                return new UserDto
+                {
+                    IsSuccess = false,
+                    Message = ex.Message
+                };
+            }
         }
     }
 }

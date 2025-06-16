@@ -34,7 +34,7 @@ namespace AuthService.Application.Features.Handler
                     };
                 }
                 var checkExits = await _unitOfWork.UserRepository.UserExistsAsync(request.Username, request.Email);
-                if (checkExits)
+                if (!checkExits)
                 {
                     return new UserDto
                     {
@@ -71,7 +71,12 @@ namespace AuthService.Application.Features.Handler
             catch (Exception ex)
             {
                 await _unitOfWork.RollbackAsync();
-                return new UserDto {
+
+                Console.WriteLine("Error message: " + ex.Message);
+                Console.WriteLine("Stack trace: " + ex.StackTrace);
+
+                return new UserDto
+                {
                     IsSuccess = false,
                     Message = $"An error occurred while registering the user: {ex.Message}"
                 };

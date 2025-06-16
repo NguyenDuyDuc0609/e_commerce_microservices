@@ -13,9 +13,10 @@ namespace AuthService.Domain.Entities
         public string DeviceInfo { get; private set; }
         public string IpAddress { get; private set; }
         public string RefreshToken { get; private set; }
+        public DateTimeOffset ExpiryDate { get; set; }
         public DateTimeOffset LoginTime { get; set; }
         public DateTimeOffset? LogoutTime { get; set; }
-        public bool IsActive { get; set; }
+        public bool IsActive { get; private set; }
         public virtual User? User { get; set; }
         private UserSession() { }
         public UserSession(Guid userId, string deviceInfo, string ipAddress, string refreshToken)
@@ -27,6 +28,7 @@ namespace AuthService.Domain.Entities
             RefreshToken = refreshToken;
             LoginTime = DateTimeOffset.UtcNow;
             IsActive = true;
+            ExpiryDate = DateTimeOffset.UtcNow.AddDays(7);
         }
         public void SetLogoutTime()
         {

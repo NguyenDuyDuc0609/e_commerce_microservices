@@ -26,8 +26,8 @@ namespace AuthService.Domain.Entities
 
         public User() { }
 
-        private readonly List<UserRole> _roles = new List<UserRole>();
-        public virtual IReadOnlyCollection<UserRole> UserRoles => _roles.AsReadOnly();
+        public virtual ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
+
         public virtual ICollection<UserSession> UserSessions { get; set; } = new List<UserSession>();
         public virtual ICollection<PasswordResetTokens> PasswordResetTokens { get; set; } = new List<PasswordResetTokens>();
         public virtual ICollection<LoginHistories> LoginHistories { get; set; } = new List<LoginHistories>();
@@ -36,7 +36,7 @@ namespace AuthService.Domain.Entities
             UserId = Guid.NewGuid();
             Username = username;
             Email = email;
-            PasswordHash = passwordHash;
+            PasswordHash = EncryptMd5(passwordHash);
             PhoneNumber = phoneNumber;
             Address = address;
             IsActive = false;
@@ -57,7 +57,7 @@ namespace AuthService.Domain.Entities
         }
         public void SetPasswordHash(string passwordHash)
         {
-            passwordHash = EncryptMd5(passwordHash);
+            PasswordHash = EncryptMd5(passwordHash);
             ModifiedDate = DateTimeOffset.UtcNow;
         }
         public void SetEmail(string email)
@@ -73,9 +73,10 @@ namespace AuthService.Domain.Entities
         }
         public void AssignRole(Guid roleId)
         {
-            if (_roles.Any(r => r.RoleId == roleId)) return;
-            _roles.Add(new UserRole(UserId, roleId));
+            if (UserRoles.Any(r => r.RoleId == roleId)) return;
+            UserRoles.Add(new UserRole(UserId, roleId));
         }
+
         private static string EncryptMd5(string password)
         {
             MD5 mD5 = MD5.Create();
