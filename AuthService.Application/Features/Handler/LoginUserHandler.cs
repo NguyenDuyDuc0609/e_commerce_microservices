@@ -32,7 +32,11 @@ namespace AuthService.Application.Features.Handler
                         Message = "Username and password cannot be null."
                     };
                 }
-
+                return new UserDto
+                {
+                    IsSuccess = true,
+                    Message = "Login successful.",
+                };
             }
             catch (Exception ex)
             {

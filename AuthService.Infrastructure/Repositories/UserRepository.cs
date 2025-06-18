@@ -86,7 +86,7 @@ namespace AuthService.Infrastructure.Repositories
         public async Task<bool> UserExistsAsync(string username, string email)
         {
             var user = await _auth.Users
-                .Where(u => (u.Username == username || u.Email == email))
+                .Where(u => (u.Username == username || u.Email == email) && u.IsActive)
                 .FirstOrDefaultAsync();
             if(user == null)
             {

@@ -1,9 +1,12 @@
+using AuthService.Application.Features.Handler;
 using AuthService.Application.Features.Users.Commands;
 using AuthService.Application.Interfaces;
 using AuthService.Domain.Entities;
+using AuthService.Infrastructure.Consumers;
 using AuthService.Infrastructure.Persistence;
 using AuthService.Infrastructure.Repositories;
 using AuthService.Infrastructure.Services;
+using MassTransit;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -71,7 +74,34 @@ builder.Services.AddStackExchangeRedisCache(options =>
     options.Configuration = $"{redisHost}:{redisPort}";
     options.InstanceName = "Auth_";
 });
-builder.Services.AddMediatR(typeof(RegisterUserCommands).Assembly);
+builder.Services.AddMassTransit(x =>
+{
+    x.AddConsumer<RegisterConsumer>();
+    x.AddEntityFrameworkOutbox<AuthDbContext>(cfg =>
+    {
+        cfg.QueryDelay = TimeSpan.FromSeconds(30);
+        cfg.DuplicateDetectionWindow = TimeSpan.FromMinutes(10);
+        cfg.DisableInboxCleanupService();
+        cfg.UsePostgres();
+        cfg.UseBusOutbox();
+    });
+
+    x.UsingRabbitMq((context, cfg) =>
+    {
+        cfg.Host("localhost", "/", h =>
+
+        {
+            h.Username("guest");
+            h.Password("guest");
+        });
+        cfg.ReceiveEndpoint("register-queue", e =>
+        {
+            e.ConfigureConsumer<RegisterConsumer>(context);
+        });
+    });
+});
+
+builder.Services.AddMediatR(typeof(RegisterUserHandler).Assembly);
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 builder.Services.AddScoped<IUserRoleRepository, UserRoleRepository>();

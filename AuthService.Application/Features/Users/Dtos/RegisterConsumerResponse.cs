@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace AuthService.Application.Features.Users.Dtos
 {
-    public class UserDto
+    public class RegisterConsumerResponse
     {
-        public object? Data { get; set; }
-        public string? Message { get; set; }
+        public Guid CorrelationId { get; set; }
         public bool IsSuccess { get; set; }
+        public string? Message { get; set; }
         public Guid? UserId { get; set; }
     }
 }

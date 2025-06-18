@@ -65,7 +65,8 @@ namespace AuthService.Application.Features.Handler
                 return new UserDto
                 {
                     IsSuccess = true,
-                    Message = "User registered successfully."
+                    Message = "User registered successfully.",
+                    UserId = user.UserId,
                 };
             }
             catch (Exception ex)

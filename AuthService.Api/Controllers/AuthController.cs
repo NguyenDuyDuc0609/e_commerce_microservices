@@ -19,21 +19,5 @@ namespace AuthService.Api.Controllers
         public AuthController(IMediator mediator) {
             _mediator = mediator;
         }
-        [HttpPost("register")]
-        [AllowAnonymous]
-        public async Task<IActionResult> Register([FromBody] RegisterUserCommands command)
-        {
-            if (command == null)
-            {
-                return BadRequest("Invalid registration data.");
-            }
-
-            var result = await _mediator.Send(command);
-            if (result.IsSuccess)
-            {
-                return Ok(result);
-            }
-            return BadRequest(result);
-        }
     }
 }
