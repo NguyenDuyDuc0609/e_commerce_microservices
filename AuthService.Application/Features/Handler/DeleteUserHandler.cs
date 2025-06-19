@@ -17,21 +17,35 @@ namespace AuthService.Application.Features.Handler
         {
             _unitOfWork = unitOfWork;
         }
-        public Task<UserDto> Handle(DeleteCommad request, CancellationToken cancellationToken)
+        public async Task<UserDto> Handle(DeleteCommad request, CancellationToken cancellationToken)
         {
             _unitOfWork.BeginTransaction();
             try
             {
-
+                var result = await _unitOfWork.UserRepository.DeleteAsync(request.UserId);
+                if(!result)
+                {
+                    return new UserDto
+                    {
+                        IsSuccess = false,
+                        Message = "User deletion failed or user does not exist."
+                    };
+                }
+                await _unitOfWork.CommitAsync();
+                return new UserDto
+                {
+                    IsSuccess = true,
+                    Message = "User deleted successfully."
+                };
             }
             catch (Exception ex)
             {
-                _unitOfWork.RollbackAsync();
-                return Task.FromResult(new UserDto
+                await _unitOfWork.RollbackAsync();
+                return new UserDto
                 {
                     IsSuccess = false,
                     Message = ex.Message
-                });
+                };
             }
             throw new NotImplementedException();
         }

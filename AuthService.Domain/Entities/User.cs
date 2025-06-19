@@ -15,6 +15,7 @@ namespace AuthService.Domain.Entities
         public string Username { get; set; }
         public string Email { get; private set; }
         public string PasswordHash { get; private set; }
+        public string? HashEmailVerification { get; private set; }
         public string PhoneNumber { get; private set; }
         public string Address { get; private set; }
         public bool IsActive { get; private set; }
@@ -39,6 +40,7 @@ namespace AuthService.Domain.Entities
             PasswordHash = EncryptMd5(passwordHash);
             PhoneNumber = phoneNumber;
             Address = address;
+            HashEmailVerification = EncryptMd5(email);
             IsActive = false;
             CreatedDate = DateTimeOffset.UtcNow;
             ModifiedDate = DateTimeOffset.UtcNow;
@@ -48,6 +50,7 @@ namespace AuthService.Domain.Entities
         public void Activate()
         {
             IsActive = true;
+            HashEmailVerification = null;
             ModifiedDate = DateTimeOffset.UtcNow;
         }
         public void Deactivate()

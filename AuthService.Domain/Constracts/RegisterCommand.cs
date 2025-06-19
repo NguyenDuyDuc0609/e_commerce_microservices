@@ -14,5 +14,17 @@ namespace AuthService.Domain.Constracts
         public string? PasswordHash { get; set; }
         public string? PhoneNumber { get; set; }
         public string? Address { get; set; }
+        public RegisterCommand(Guid correlationId, string? username, string? email, string? passwordHash, string? phoneNumber, string? address)
+        {
+            CorrelationId = correlationId;
+            Username = username;
+            Email = email;
+            PasswordHash = passwordHash;
+            PhoneNumber = phoneNumber;
+            Address = address;
+        }
+        public RegisterCommand()
+        {
+        }
     }
 }

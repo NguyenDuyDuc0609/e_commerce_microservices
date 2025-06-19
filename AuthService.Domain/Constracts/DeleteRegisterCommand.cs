@@ -10,5 +10,13 @@ namespace AuthService.Domain.Constracts
     {
         public Guid CorrelationId { get; set; }
         public Guid UserId { get; set; }
+        public DeleteRegisterCommand(Guid correlationId, Guid userId)
+        {
+            CorrelationId = correlationId;
+            UserId = userId;
+        }
+        public DeleteRegisterCommand()
+        {
+        }
     }
 }
