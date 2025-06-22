@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace NotificationService.Application.Features.Dtos
 {
-    class NotificationSuccess
+    public class NotificationSuccess
     {
+        public Guid CorrelationId { get; set; }
     }
 }

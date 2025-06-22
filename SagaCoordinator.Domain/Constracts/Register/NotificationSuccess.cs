@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace SagaCoordinator.Domain.Constracts.Register
 {
-    internal class NotificationSuccess
+    public class NotificationSuccess
     {
+        public Guid CorrelationId { get; set; }
     }
 }

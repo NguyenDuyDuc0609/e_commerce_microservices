@@ -14,9 +14,11 @@ namespace AuthService.Infrastructure.Consumers
     public class DeleteRegisterConsumer : IConsumer<DeleteRegisterCommand>
     {
         private readonly IMediator _mediator;
-        public DeleteRegisterConsumer(IMediator mediator)
+        private readonly IPublishEndpoint _publishEndpoint;
+        public DeleteRegisterConsumer(IMediator mediator, IPublishEndpoint publishEndpoint)
         {
             _mediator = mediator;
+            _publishEndpoint = publishEndpoint;
         }
         public async Task Consume(ConsumeContext<DeleteRegisterCommand> context)
         {
@@ -26,20 +28,9 @@ namespace AuthService.Infrastructure.Consumers
                 var request = new DeleteCommad(command.UserId);
                 var result = await _mediator.Send(request);
                 if (result != null) {
-                    await context.RespondAsync(new RegisterConsumerResponse
+                    await _publishEndpoint.Publish(new UserDeletedEvent
                     {
-                        CorrelationId = context.Message.CorrelationId,
-                        IsSuccess = result.IsSuccess,
-                        Message = result.Message
-                    });
-                }
-                else
-                {
-                    await context.RespondAsync(new RegisterConsumerResponse
-                    {
-                        CorrelationId = context.Message.CorrelationId,
-                        IsSuccess = false,
-                        Message = "User deletion failed or user does not exist."
+                        CorrelationId = context.Message.CorrelationId
                     });
                 }
                 await Task.CompletedTask;

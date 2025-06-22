@@ -1,5 +1,6 @@
 ﻿using MailKit.Search;
 using MassTransit;
+using MassTransit.Transports;
 using MediatR;
 using NotificationService.Application.Features.Dtos;
 using NotificationService.Application.Features.Notification.Commands;
@@ -16,9 +17,11 @@ namespace NotificationService.Infrastructure.Consumers
     public class NotificationConsumer : IConsumer<NotificationRegisterCommand>
     {
         private readonly IMediator _mediator;
-        public NotificationConsumer(IMediator mediator)
+        public readonly IPublishEndpoint _publishEndpoint;
+        public NotificationConsumer(IMediator mediator, IPublishEndpoint publishEndpoint)
         {
             _mediator = mediator;
+            _publishEndpoint = publishEndpoint;
         }
         public async Task Consume(ConsumeContext<NotificationRegisterCommand> context)
         {
@@ -36,20 +39,18 @@ namespace NotificationService.Infrastructure.Consumers
             var result = await _mediator.Send(command);
             if (result.IsSuccess)
             {
-                await context.RespondAsync(new NotificationConsumerResponse
+                await _publishEndpoint.Publish(new NotificationSuccess
                 {
                     CorrelationId = context.Message.CorrelationId,
-                    IsSuccess = true,
-                    Message = result.Message
                 });
             }
             else
             {
-                await context.RespondAsync(new NotificationConsumerResponse
+                await _publishEndpoint.Publish(new NotificationFailed
                 {
                     CorrelationId = context.Message.CorrelationId,
-                    IsSuccess = false,
-                    Message = result.Message
+                    Message = result.Message,
+                    UserId = context.Message.UserId
                 });
 
             }

@@ -6,7 +6,10 @@ using System.Threading.Tasks;
 
 namespace AuthService.Domain.Constracts
 {
-    internal class UserCreationFailedEvent
+    public class UserCreationFailedEvent
     {
+        public Guid CorrelationId { get; set; }
+        public string? Message { get; set; }
+        public Guid? UserId { get; set; }
     }
 }

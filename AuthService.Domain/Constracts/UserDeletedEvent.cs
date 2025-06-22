@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace AuthService.Domain.Constracts
 {
-    internal class UserDeletedEvent
+    public class UserDeletedEvent
     {
+        public Guid CorrelationId { get; set; }
     }
 }

@@ -14,9 +14,11 @@ namespace AuthService.Infrastructure.Consumers
     public class RegisterConsumer : IConsumer<RegisterCommand>
     {
         private readonly IMediator _mediator;
-        public RegisterConsumer(IMediator mediator)
+        private readonly IPublishEndpoint _publishEndpoint;
+        public RegisterConsumer(IMediator mediator, IPublishEndpoint publishEndpoint)
         {
             _mediator = mediator;
+            _publishEndpoint = publishEndpoint;
         }
         public async Task Consume(ConsumeContext<RegisterCommand> context)
         {
@@ -33,31 +35,31 @@ namespace AuthService.Infrastructure.Consumers
                 var result = await _mediator.Send(command);
                 if (result.IsSuccess)
                 {
-                    await context.RespondAsync(new RegisterConsumerResponse
+                    await _publishEndpoint.Publish(new UserCreatedEvent
                     {
+                        UserId = result.UserId,
                         CorrelationId = context.Message.CorrelationId,
-                        IsSuccess = true,
-                        Message = result.Message,
-                        UserId = result.UserId
+                        Username = commandRegister.Username,
+                        Email = commandRegister.Email,
+                        HashEmail = result.HashEmail,
+                        PhoneNumber = commandRegister.PhoneNumber,
+                        Address = commandRegister.Address
+                        
                     });
                 }
                 else
                 {
-                    await context.RespondAsync(new RegisterConsumerResponse
+                    await _publishEndpoint.Publish(new UserCreationFailedEvent
                     {
                         CorrelationId = context.Message.CorrelationId,
-                        IsSuccess = false,
-                        Message = result.Message
                     });
                 }
             }
             else
             {
-                await context.RespondAsync(new RegisterConsumerResponse
+                await _publishEndpoint.Publish(new UserCreationFailedEvent
                 {
                     CorrelationId = context.Message.CorrelationId,
-                    IsSuccess = false,
-                    Message = "Invalid registration request."
                 });
             }
             await Task.CompletedTask;

@@ -98,6 +98,10 @@ builder.Services.AddMassTransit(x =>
         {
             e.ConfigureConsumer<RegisterConsumer>(context);
         });
+        cfg.ReceiveEndpoint("register-delete-queue", e =>
+        {
+            e.ConfigureConsumer<DeleteRegisterConsumer>(context);
+        });
     });
 });
 

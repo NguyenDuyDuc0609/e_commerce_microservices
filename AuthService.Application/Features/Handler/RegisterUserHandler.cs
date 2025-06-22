@@ -67,6 +67,7 @@ namespace AuthService.Application.Features.Handler
                     IsSuccess = true,
                     Message = "User registered successfully.",
                     UserId = user.UserId,
+                    HashEmail = user.HashEmailVerification
                 };
             }
             catch (Exception ex)

@@ -6,7 +6,17 @@ using System.Threading.Tasks;
 
 namespace SagaCoordinator.Domain.Constracts.Register
 {
-    internal class DeleteRegisterCommand
+    public class DeleteRegisterCommand
     {
+        public Guid CorrelationId { get; set; }
+        public Guid UserId { get; set; }
+        public DeleteRegisterCommand(Guid correlationId, Guid userId)
+        {
+            CorrelationId = correlationId;
+            UserId = userId;
+        }
+        public DeleteRegisterCommand()
+        {
+        }
     }
 }
