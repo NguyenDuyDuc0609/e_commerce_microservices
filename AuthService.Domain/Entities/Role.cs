@@ -11,8 +11,8 @@ namespace AuthService.Domain.Entities
         public Guid RoleId { get; set; }
         public string? RoleName { get; set; }
         public string? Description { get; set; }
-        public virtual ICollection<UserRole> UserRoles { get; set; }
-        private Role() { }
+        public virtual ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
+        public Role() { }
         public Role(string roleName, string description)
         {
             RoleId = Guid.NewGuid();

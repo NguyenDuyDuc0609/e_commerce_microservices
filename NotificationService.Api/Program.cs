@@ -7,7 +7,6 @@ using NotificationService.Infrastructure.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -21,15 +20,6 @@ builder.Services.AddDbContext<NotificationContext>(options =>
 builder.Services.AddMassTransit(x =>
 {
     x.AddConsumer<NotificationConsumer>();
-    x.AddEntityFrameworkOutbox<NotificationContext>(cfg =>
-    {
-        cfg.QueryDelay = TimeSpan.FromSeconds(30);
-        cfg.DuplicateDetectionWindow = TimeSpan.FromMinutes(10);
-        cfg.DisableInboxCleanupService();
-        cfg.UsePostgres();
-        cfg.UseBusOutbox();
-    });
-
     x.UsingRabbitMq((context, cfg) =>
     {
         cfg.Host("localhost", "/", h =>
@@ -37,11 +27,18 @@ builder.Services.AddMassTransit(x =>
             h.Username("guest");
             h.Password("guest");
         });
-        cfg.ConfigureEndpoints(context);
+        cfg.ReceiveEndpoint("register-sendmail-queue", e =>
+        {
+            e.ConfigureConsumer<NotificationConsumer>(context);
+        });
     });
 });
 
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
+builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
+builder.Services.AddScoped<IEmailSender, EmailSender>();
+
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

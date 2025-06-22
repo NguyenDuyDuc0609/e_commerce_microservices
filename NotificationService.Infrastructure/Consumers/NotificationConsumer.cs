@@ -1,6 +1,8 @@
-﻿using MassTransit;
+﻿using MailKit.Search;
+using MassTransit;
 using MediatR;
 using NotificationService.Application.Features.Dtos;
+using NotificationService.Application.Features.Notification.Commands;
 using NotificationService.Domain.Constracts;
 using NotificationService.Domain.Enums;
 using System;
@@ -20,16 +22,37 @@ namespace NotificationService.Infrastructure.Consumers
         }
         public async Task Consume(ConsumeContext<NotificationRegisterCommand> context)
         {
-            var commandSendNotification = context.Message;
-            var command = new NotificationMessage
-                {
-                UserName = commandSendNotification.Username,
-                UserId = commandSendNotification.UserId,
-                Email = commandSendNotification.Email,
-                HashEmail = commandSendNotification.HashEmail,
-                Type = NotificationType.RegisterEmail
-                };
+            var commandNotification = context.Message;
+            var command = new NotificationSendMailCommand
+                (
+                new NotificationMessage(
+                    NotificationType.RegisterEmail,
+                    commandNotification.Username,
+                    commandNotification.UserId,
+                    commandNotification.HashEmail,
+                    commandNotification.Email
+)
+                );
             var result = await _mediator.Send(command);
+            if (result.IsSuccess)
+            {
+                await context.RespondAsync(new NotificationConsumerResponse
+                {
+                    CorrelationId = context.Message.CorrelationId,
+                    IsSuccess = true,
+                    Message = result.Message
+                });
+            }
+            else
+            {
+                await context.RespondAsync(new NotificationConsumerResponse
+                {
+                    CorrelationId = context.Message.CorrelationId,
+                    IsSuccess = false,
+                    Message = result.Message
+                });
+
             }
         }
     }
+}

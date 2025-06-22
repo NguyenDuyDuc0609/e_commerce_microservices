@@ -6,10 +6,7 @@ using System.Threading.Tasks;
 
 namespace NotificationService.Application.Features.Dtos
 {
-    public class NotificationConsumerResponse
+    internal class NotificationFailed
     {
-        public Guid CorrelationId { get; set; }
-        public bool IsSuccess { get; set; }
-        public string? Message { get; set; }
     }
 }
