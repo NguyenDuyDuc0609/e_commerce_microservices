@@ -1,4 +1,5 @@
 using Ocelot.DependencyInjection;
+using Ocelot.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,17 +13,19 @@ builder.Configuration.SetBasePath(builder.Environment.ContentRootPath).AddJsonFi
 builder.Services.AddOcelot(builder.Configuration);
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+app.UseSwagger();
+app.UseSwaggerUI(c =>
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+    c.SwaggerEndpoint("/auth/swagger/v1/swagger.json", "Auth Service");
+    c.SwaggerEndpoint("/notification/swagger/v1/swagger.json", "Notification Service API V1");
+    c.SwaggerEndpoint("/saga/swagger/v1/swagger.json", "Saga Coordinator Service API V1");
+});
 
 app.UseHttpsRedirection();
 app.UseCors(builder => builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 app.UseAuthorization();
 
 app.MapControllers();
+await app.UseOcelot();
 
 app.Run();

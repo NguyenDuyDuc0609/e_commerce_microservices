@@ -1,16 +1,16 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace SagaCoordinator.Api.Controllers
+namespace NotificationService.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class SagaController : ControllerBase
+    public class NotificationController : ControllerBase
     {
         [HttpGet("status")]
         public IActionResult GetStatus()
         {
-            return Ok("Saga Coordinator is running");
+            return Ok("Notification Service is running");
         }
     }
 }

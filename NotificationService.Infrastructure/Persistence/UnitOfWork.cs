@@ -15,10 +15,13 @@ namespace NotificationService.Infrastructure.Persistence
         private IDbContextTransaction? _transaction;
         public INotificationRepository? NotificationRepository { get; }
 
-        public UnitOfWork(NotificationContext context, INotificationRepository? notificationRepository, IEmailSender? emailSender)
+        public INotificationStrategy? NotificationStrategy { get; }
+
+        public UnitOfWork(NotificationContext context, INotificationRepository? notificationRepository, IEmailSender? emailSender, INotificationStrategy? notificationStrategy)
         {
             _context = context;
             NotificationRepository = notificationRepository;
+            NotificationStrategy = notificationStrategy;
         }
 
         public void BeginTransaction()

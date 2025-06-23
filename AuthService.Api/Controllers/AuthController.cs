@@ -19,5 +19,11 @@ namespace AuthService.Api.Controllers
         public AuthController(IMediator mediator) {
             _mediator = mediator;
         }
+        [HttpPost("Login")]
+        [AllowAnonymous]
+        public IActionResult Login()
+        {
+            return Ok("Login success");
+        }
     }
 }

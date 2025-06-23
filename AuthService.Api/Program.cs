@@ -45,6 +45,12 @@ builder.Services.AddDbContext<AuthDbContext>(options =>
 });
 builder.Services.AddSwaggerGen(options =>
 {
+    options.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "Auth Service API",
+        Version = "v1"
+    });
+
     options.AddSecurityDefinition(JwtBearerDefaults.AuthenticationScheme, new OpenApiSecurityScheme
     {
         Name = "Authorization",
@@ -77,6 +83,7 @@ builder.Services.AddStackExchangeRedisCache(options =>
 builder.Services.AddMassTransit(x =>
 {
     x.AddConsumer<RegisterConsumer>();
+    x.AddConsumer<DeleteRegisterConsumer>();
     //x.AddEntityFrameworkOutbox<AuthDbContext>(cfg =>
     //{
     //    cfg.QueryDelay = TimeSpan.FromSeconds(30);
@@ -105,7 +112,10 @@ builder.Services.AddMassTransit(x =>
     });
 });
 
-builder.Services.AddMediatR(typeof(RegisterUserHandler).Assembly);
+builder.Services.AddMediatR(cfg =>
+{
+    cfg.RegisterServicesFromAssembly(typeof(RegisterUserHandler).Assembly);
+});
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 builder.Services.AddScoped<IUserRoleRepository, UserRoleRepository>();
@@ -113,11 +123,11 @@ builder.Services.AddScoped<ITokenService, JwtTokenService>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 var app = builder.Build();
-if (app.Environment.IsDevelopment())
+app.UseSwagger();
+app.UseSwaggerUI(c =>
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Auth Service API V1");
+});
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<AuthDbContext>();
