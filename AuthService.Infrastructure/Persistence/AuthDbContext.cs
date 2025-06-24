@@ -1,4 +1,6 @@
 ﻿using AuthService.Domain.Entities;
+using MassTransit;
+using MassTransit.EntityFrameworkCoreIntegration;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -20,9 +22,14 @@ namespace AuthService.Infrastructure.Persistence
         public DbSet<PasswordResetTokens> PasswordResetTokens { get; set; }
         public DbSet<LoginHistories> LoginHistories { get; set; }
         public DbSet<UserSession> UserSessions { get; set; }
-
+        public DbSet<OutboxState> OutboxStates { get; set; }
+        public DbSet<OutboxMessage> OutboxMessages { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
+            modelBuilder.AddInboxStateEntity();
+            modelBuilder.AddOutboxStateEntity();
+            modelBuilder.AddOutboxMessageEntity();
             modelBuilder.Entity<User>()
                 .HasKey(u => u.UserId);
             modelBuilder.Entity<User>()

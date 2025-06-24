@@ -32,6 +32,14 @@ builder.Services.AddDbContext<NotificationContext>(options =>
 builder.Services.AddMassTransit(x =>
 {
     x.AddConsumer<NotificationConsumer>();
+    x.AddEntityFrameworkOutbox<NotificationContext>(cfg =>
+    {
+        cfg.QueryDelay = TimeSpan.FromSeconds(30);
+        cfg.DuplicateDetectionWindow = TimeSpan.FromMinutes(10);
+        cfg.DisableInboxCleanupService();
+        cfg.UsePostgres();
+        cfg.UseBusOutbox();
+    });
     x.UsingRabbitMq((context, cfg) =>
     {
         cfg.Host("localhost", "/", h =>

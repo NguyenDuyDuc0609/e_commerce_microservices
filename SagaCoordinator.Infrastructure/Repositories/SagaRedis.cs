@@ -1,0 +1,35 @@
+﻿using Microsoft.Extensions.Caching.Distributed;
+using SagaCoordinator.Application.Interfaces;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Text.Json;
+using System.Threading.Tasks;
+
+namespace SagaCoordinator.Infrastructure.Repositories
+{
+    public class SagaRedis : ISagaRedis
+    {
+        private readonly IDistributedCache _distributedCache;
+        public SagaRedis(IDistributedCache distributedCache)
+        {
+            _distributedCache = distributedCache;
+        }
+        public async Task<T?> GetSagaRedis<T>(Guid correlationId) where T : class
+        {
+            string? saga = await _distributedCache.GetStringAsync(correlationId.ToString());
+            return saga == null ? null : JsonSerializer.Deserialize<T>(saga);
+        }
+
+        public async Task SetSagaRedis(Guid correlationId, object saga, TimeSpan? expiration = null)
+        {
+            var cacheOption = new DistributedCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = expiration ?? TimeSpan.FromMinutes(30)
+            };
+            string data = JsonSerializer.Serialize(saga);
+            await _distributedCache.SetStringAsync(correlationId.ToString(), data, cacheOption);
+        }
+    }
+}

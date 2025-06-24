@@ -84,14 +84,14 @@ builder.Services.AddMassTransit(x =>
 {
     x.AddConsumer<RegisterConsumer>();
     x.AddConsumer<DeleteRegisterConsumer>();
-    //x.AddEntityFrameworkOutbox<AuthDbContext>(cfg =>
-    //{
-    //    cfg.QueryDelay = TimeSpan.FromSeconds(30);
-    //    cfg.DuplicateDetectionWindow = TimeSpan.FromMinutes(10);
-    //    cfg.DisableInboxCleanupService();
-    //    cfg.UsePostgres();
-    //    cfg.UseBusOutbox();
-    //});
+    x.AddEntityFrameworkOutbox<AuthDbContext>(cfg =>
+    {
+        cfg.QueryDelay = TimeSpan.FromSeconds(30);
+        cfg.DuplicateDetectionWindow = TimeSpan.FromMinutes(10);
+        cfg.DisableInboxCleanupService();
+        cfg.UsePostgres();
+        cfg.UseBusOutbox();
+    });
 
     x.UsingRabbitMq((context, cfg) =>
     {

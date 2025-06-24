@@ -1,4 +1,7 @@
+using MassTransit;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using SagaCoordinator.Infrastructure.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,7 +18,32 @@ builder.Services.AddSwaggerGen(options =>
         Version = "v1"
     });
 });
+builder.Services.AddDbContext<SagaContext>(options =>
+{
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
+});
+builder.Services.AddMassTransit(x =>
+{
+    x.AddEntityFrameworkOutbox<SagaContext>(cfg =>
+    {
+        cfg.QueryDelay = TimeSpan.FromSeconds(30);
+        cfg.DuplicateDetectionWindow = TimeSpan.FromMinutes(10);
+        cfg.DisableInboxCleanupService();
+        cfg.UsePostgres();
+        cfg.UseBusOutbox();
+    });
 
+    x.UsingRabbitMq((context, cfg) =>
+    {
+        cfg.Host("localhost", "/", h =>
+        //cfg.Host("bloodcenter.rabbitmq", "/", h =>
+        {
+            h.Username("guest");
+            h.Password("guest");
+        });
+        cfg.ConfigureEndpoints(context);
+    });
+});
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

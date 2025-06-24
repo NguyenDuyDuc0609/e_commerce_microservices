@@ -3,15 +3,15 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using NotificationService.Infrastructure.Persistence;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
+using SagaCoordinator.Infrastructure.Persistence;
 
 #nullable disable
 
-namespace NotificationService.Infrastructure.Migrations
+namespace SagaCoordinator.Infrastructure.Migrations
 {
-    [DbContext(typeof(NotificationContext))]
-    partial class NotificationContextModelSnapshot : ModelSnapshot
+    [DbContext(typeof(SagaContext))]
+    partial class SagaContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
@@ -190,45 +190,27 @@ namespace NotificationService.Infrastructure.Migrations
                     b.ToTable("OutboxStates");
                 });
 
-            modelBuilder.Entity("NotificationService.Domain.Entities.NotificationLog", b =>
+            modelBuilder.Entity("SagaCoordinator.Domain.Entities.SagaStatus", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("CorrelationId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
-
-                    b.Property<string>("Body")
-                        .IsRequired()
-                        .HasColumnType("text");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("ErrorMessage")
-                        .HasColumnType("text");
-
-                    b.Property<DateTimeOffset>("ModifyDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Recipient")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.Property<int>("Status")
                         .HasColumnType("integer");
 
-                    b.Property<string>("Subject")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("Type")
+                    b.Property<int>("TypeSaga")
                         .HasColumnType("integer");
 
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
 
-                    b.HasKey("Id");
+                    b.HasKey("CorrelationId");
 
-                    b.ToTable("NotificationLogs");
+                    b.ToTable("SagaStatuses");
                 });
 
             modelBuilder.Entity("MassTransit.EntityFrameworkCoreIntegration.OutboxMessage", b =>

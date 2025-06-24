@@ -1,0 +1,53 @@
+﻿using Microsoft.EntityFrameworkCore;
+using SagaCoordinator.Application.Interfaces;
+using SagaCoordinator.Domain.Entities;
+using SagaCoordinator.Domain.Enums;
+using SagaCoordinator.Infrastructure.Persistence;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace SagaCoordinator.Infrastructure.Repositories
+{
+    public class SagaRepository : ISagaRepository
+    {
+        private readonly SagaContext _context;
+        public SagaRepository(SagaContext context)
+        {
+            _context = context;
+        }
+        public async Task<bool> AddNewSaga(Guid correlationId, TypeSaga typeSaga)
+        {
+            var saga = new SagaStatus(correlationId, typeSaga, StatusSaga.Pending);
+            await _context.SagaStatuses.AddAsync(saga);
+            return await _context.SaveChangesAsync() > 0;
+        }
+
+        public async Task<StatusSaga?> GetSagaStatus(Guid correlationId, TypeSaga typeSaga)
+        {
+            var saga = await _context.SagaStatuses
+                .Where(s => s.CorrelationId == correlationId && s.TypeSaga == typeSaga)
+                .Select(s => s.Status)
+                .FirstOrDefaultAsync();
+            return saga;
+        }
+
+        public async Task<bool> SagaExists(Guid correlationId, TypeSaga typeSaga)
+        {
+            return await _context.SagaStatuses
+                .AnyAsync(s => s.CorrelationId == correlationId && s.TypeSaga == typeSaga);
+        }
+
+        public async Task<bool> UpdateSagaStatus(Guid correlationId, TypeSaga typeSaga, StatusSaga status)
+        {
+            var saga = await _context.SagaStatuses
+                .Where(s => s.CorrelationId == correlationId && s.TypeSaga == typeSaga)
+                .FirstOrDefaultAsync();
+            if (saga == null) return false;
+            saga.UpdateStatus(status);
+            return true;
+        }
+    }
+}

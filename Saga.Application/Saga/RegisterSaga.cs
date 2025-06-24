@@ -1,4 +1,5 @@
 ﻿using MassTransit;
+using SagaCoordinator.Application.Dtos;
 using SagaCoordinator.Domain.Constracts.Register;
 using SagaCoordinator.Domain.Constracts.SagaStates;
 
@@ -64,25 +65,37 @@ namespace SagaCoordinator.Application.Saga
                     .TransitionTo(NotificationPending),
 
                 When(UserCreationFailed)
-                    .Then(context =>
+                    .Then(async context =>
                     {
-                        Console.WriteLine("❌ Tạo user thất bại");
+                        await context.RespondAsync(new MessageResult
+                        {
+                            Message = context.Data.Message,
+                            IsSuccess = false
+                        });
                     })
                     .Finalize()
             );
 
             During(NotificationPending,
                 When(NotificationSuccess)
-                    .Then(context =>
+                    .Then(async context =>
                     {
-                        Console.WriteLine("✅ Gửi email thành công");
+                        await context.RespondAsync(new MessageResult
+                        {
+                            Message = "Đăng ký thành công",
+                            IsSuccess = true
+                        });
                     })
                     .Finalize(),
 
                 When(NotificationFailed)
-                    .Then(context =>
+                    .Then(async context =>
                     {
-                        Console.WriteLine("❌ Gửi email thất bại");
+                        await context.RespondAsync(new MessageResult
+                        {
+                            Message = context.Data.Message,
+                            IsSuccess = false
+                        });
                     })
                     .Send(new Uri("queue:register-delete-queue"), context => new DeleteRegisterCommand
                     {
@@ -94,9 +107,13 @@ namespace SagaCoordinator.Application.Saga
 
             During(Rollback,
                 When(DeleteRegisterCommand)
-                    .Then(context =>
+                    .Then(async context =>
                     {
-                        Console.WriteLine("🗑️ Đang rollback và xóa user đã tạo...");
+                        await context.RespondAsync(new MessageResult
+                        {
+                            Message = "Đăng ký thất bại, đã xóa dữ liệu",
+                            IsSuccess = false
+                        });
                     })
                     .Finalize()
             );
