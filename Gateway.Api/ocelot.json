@@ -47,6 +47,60 @@
       ],
       "UpstreamPathTemplate": "/saga/swagger/v1/swagger.json",
       "UpstreamHttpMethod": [ "GET" ]
+    },
+    {
+      "DownstreamPathTemplate": "/swagger/v1/swagger.json",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7230
+        }
+      ],
+      "UpstreamPathTemplate": "/acceptor/swagger/v1/swagger.json",
+      "UpstreamHttpMethod": [ "GET" ]
+    }
+  ],
+  "SwaggerEndPoints": [
+    {
+      "Key": "Auth",
+      "Config": [
+        {
+          "Name": "Auth Service",
+          "Version": "v1",
+          "Url": "https://localhost:7020/swagger/v1/swagger.json"
+        }
+      ]
+    },
+    {
+      "Key": "Notification",
+      "Config": [
+        {
+          "Name": "Notification Service",
+          "Version": "v1",
+          "Url": "https://localhost:7066/swagger/v1/swagger.json"
+        }
+      ]
+    },
+    {
+      "Key": "Saga",
+      "Config": [
+        {
+          "Name": "Saga Service",
+          "Version": "v1",
+          "Url": "https://localhost:7151/swagger/v1/swagger.json"
+        }
+      ]
+    },
+    {
+      "Key": "Acceptor",
+      "Config": [
+        {
+          "Name": "Acceptor Service",
+          "Version": "v1",
+          "Url": "https://localhost:7230/swagger/v1/swagger.json"
+        }
+      ]
     }
   ],
   "GlobalConfiguration": {

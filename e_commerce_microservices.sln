@@ -33,11 +33,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ApiGateway", "ApiGateway", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gateway.Api", "Gateway.Api\Gateway.Api.csproj", "{67BF8A47-0B41-412E-A93D-1CFFA9891981}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SagaCoordinator.Application", "Saga.Application\SagaCoordinator.Application.csproj", "{1CE9DEDF-D986-41B5-8B2B-2779867385E3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SagaCoordinator.Application", "Saga.Application\SagaCoordinator.Application.csproj", "{1CE9DEDF-D986-41B5-8B2B-2779867385E3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SagaCoordinator.Domain", "SagaCoordinator.Domain\SagaCoordinator.Domain.csproj", "{BD6163B0-731A-4492-8DEF-97CC4C947F85}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SagaCoordinator.Domain", "SagaCoordinator.Domain\SagaCoordinator.Domain.csproj", "{BD6163B0-731A-4492-8DEF-97CC4C947F85}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SagaCoordinator.Infrastructure", "SagaCoordinator.Infrastructure\SagaCoordinator.Infrastructure.csproj", "{9D7D852B-6535-4CBB-AAB8-36EBF59B9082}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SagaCoordinator.Infrastructure", "SagaCoordinator.Infrastructure\SagaCoordinator.Infrastructure.csproj", "{9D7D852B-6535-4CBB-AAB8-36EBF59B9082}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

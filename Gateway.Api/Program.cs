@@ -8,17 +8,26 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-builder.Configuration.SetBasePath(builder.Environment.ContentRootPath).AddJsonFile("ocelot.json", optional: false, reloadOnChange: true);
+//builder.Services.AddSwaggerGen();
+builder.Configuration
+    .SetBasePath(builder.Environment.ContentRootPath)
+    .AddJsonFile("ocelot.json", optional: false, reloadOnChange: true);
+//.AddJsonFile("ocelot.Swagger.json", optional: false, reloadOnChange: true);
+
 builder.Services.AddOcelot(builder.Configuration);
+builder.Services.AddSwaggerForOcelot(builder.Configuration);
 var app = builder.Build();
 
-app.UseSwagger();
-app.UseSwaggerUI(c =>
+//app.UseSwagger();
+//app.UseSwaggerUI(c =>
+//{
+//    c.SwaggerEndpoint("/auth/swagger/v1/swagger.json", "Auth Service");
+//    c.SwaggerEndpoint("/notification/swagger/v1/swagger.json", "Notification Service API V1");
+//    c.SwaggerEndpoint("/saga/swagger/v1/swagger.json", "Saga Coordinator Service API V1");
+//});
+app.UseSwaggerForOcelotUI(opt =>
 {
-    c.SwaggerEndpoint("/auth/swagger/v1/swagger.json", "Auth Service");
-    c.SwaggerEndpoint("/notification/swagger/v1/swagger.json", "Notification Service API V1");
-    c.SwaggerEndpoint("/saga/swagger/v1/swagger.json", "Saga Coordinator Service API V1");
+    opt.PathToSwaggerGenerator = "/swagger/docs";
 });
 
 app.UseHttpsRedirection();
