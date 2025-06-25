@@ -4,12 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SagaCoordinator.Domain.Constracts.Register
+namespace RegisterConstracts.Events
 {
-    public class NotificationFailed
+    public class UserDeletedEvent
     {
         public Guid CorrelationId { get; set; }
-        public string? Message { get; set; }
-        public Guid? UserId { get; set; }
     }
 }

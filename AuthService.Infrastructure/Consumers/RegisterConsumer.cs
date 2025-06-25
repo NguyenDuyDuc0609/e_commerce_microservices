@@ -1,8 +1,9 @@
 ﻿using AuthService.Application.Features.Users.Commands;
 using AuthService.Application.Features.Users.Dtos;
-using AuthService.Domain.Constracts;
 using MassTransit;
 using MediatR;
+using RegisterConstracts.Commands;
+using RegisterConstracts.Events;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace AuthService.Infrastructure.Consumers
 {
-    public class RegisterConsumer : IConsumer<RegisterCommand>
+    public class RegisterConsumer : IConsumer<RegisterUserCommand>
     {
         private readonly IMediator _mediator;
         private readonly IPublishEndpoint _publishEndpoint;
@@ -20,7 +21,7 @@ namespace AuthService.Infrastructure.Consumers
             _mediator = mediator;
             _publishEndpoint = publishEndpoint;
         }
-        public async Task Consume(ConsumeContext<RegisterCommand> context)
+        public async Task Consume(ConsumeContext<RegisterUserCommand> context)
         {
             var commandRegister = context.Message;
             if (commandRegister != null)
@@ -52,6 +53,7 @@ namespace AuthService.Infrastructure.Consumers
                     await _publishEndpoint.Publish(new UserCreationFailedEvent
                     {
                         CorrelationId = context.Message.CorrelationId,
+                        Message = result.Message,
                     });
                 }
             }
@@ -60,6 +62,7 @@ namespace AuthService.Infrastructure.Consumers
                 await _publishEndpoint.Publish(new UserCreationFailedEvent
                 {
                     CorrelationId = context.Message.CorrelationId,
+                    Message = "Invalid Register Command"
                 });
             }
             await Task.CompletedTask;

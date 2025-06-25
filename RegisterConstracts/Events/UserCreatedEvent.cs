@@ -4,12 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AuthService.Domain.Constracts
+namespace RegisterConstracts.Events
 {
     public class UserCreatedEvent
     {
         public Guid CorrelationId { get; set; }
-        public Guid? UserId { get; set; }
+        public Guid UserId { get; set; }
         public string? Username { get; set; }
         public string? Email { get; set; }
         public string? HashEmail { get; set; }

@@ -12,14 +12,16 @@ namespace SagaCoordinator.Domain.Entities
         public Guid CorrelationId { get; set; }
         public TypeSaga TypeSaga { get; set; }
         public StatusSaga Status { get; private set; }
+        public string? Message { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; private set; }
-        public SagaStatus(Guid correlationId, TypeSaga typeSaga, StatusSaga status)
+        public SagaStatus(Guid correlationId, TypeSaga typeSaga, StatusSaga status, string? message)
         {
             CorrelationId = correlationId;
             TypeSaga = typeSaga;
             Status = status;
             CreatedAt = DateTime.UtcNow;
+            Message = message;
         }
         public SagaStatus()
         {

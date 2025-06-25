@@ -4,10 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AuthService.Domain.Constracts
+namespace RegisterConstracts.Events
 {
-    public class UserDeletedEvent
+    public class UserCreationFailedEvent
     {
         public Guid CorrelationId { get; set; }
+        public string? Message { get; set; }
     }
 }

@@ -21,6 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\RegisterConstracts\RegisterConstracts.csproj" />
     <ProjectReference Include="..\SagaCoordinator.Domain\SagaCoordinator.Domain.csproj" />
   </ItemGroup>
 

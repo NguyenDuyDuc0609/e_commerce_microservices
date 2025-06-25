@@ -11,14 +11,14 @@ using System.Threading.Tasks;
 
 namespace SagaCoordinator.Application.Handlers
 {
-    public class RegisterSagaHanlder : IRequestHandler<RegisterUserCommandSaga, MessageResult>
+    public class RegisterSagaHanlder : IRequestHandler<RegisterUserCommandSaga, ModelResult>
     {
-        private readonly IRequestClient<RegisterUserCommand> _requestClient;
-        public RegisterSagaHanlder(IRequestClient<RegisterUserCommand> requestClient)
+        private readonly IPublishEndpoint _publishEndpoint;
+        public RegisterSagaHanlder(IPublishEndpoint publishEndpoint)
         {
-            _requestClient = requestClient;
+            _publishEndpoint = publishEndpoint;
         }
-        public async Task<MessageResult> Handle(RegisterUserCommandSaga request, CancellationToken cancellationToken)
+        public async Task<ModelResult> Handle(RegisterUserCommandSaga request, CancellationToken cancellationToken)
         {
             try
             {
@@ -31,19 +31,22 @@ namespace SagaCoordinator.Application.Handlers
                     PhoneNumber = request.PhoneNumber,
                     Address = request.Address
                 };
-                var response = await _requestClient.GetResponse<MessageResult>(command, cancellationToken: cancellationToken);
-                return response.Message;
+                await _publishEndpoint.Publish(command, cancellationToken);
+                return new ModelResult
+                {
+                    Message = "User registration is processing",
+                    CorrelationId = command.CorrelationId
+                };
             }
             catch (Exception ex)
             {
-                var notification = new MessageResult
+                var notification = new ModelResult
                 {
                     Message = ex.Message,
-                    IsSuccess = false
+                    CorrelationId = null
                 };
                 return notification;
             }
-            throw new NotImplementedException();
         }
     }
 }

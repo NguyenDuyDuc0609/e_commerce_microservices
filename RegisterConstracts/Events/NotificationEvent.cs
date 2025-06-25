@@ -4,10 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SagaCoordinator.Domain.Constracts.Register
+namespace RegisterConstracts.Events
 {
-    public class NotificationSuccess
+    public class NotificationEvent
     {
         public Guid CorrelationId { get; set; }
+        public string? Message { get; set; } = default!;
     }
 }

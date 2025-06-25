@@ -1,12 +1,15 @@
 ﻿using MassTransit;
-using SagaCoordinator.Application.Dtos;
-using SagaCoordinator.Domain.Constracts.Register;
+using RegisterConstracts.Commands;
+using RegisterConstracts.Events;
 using SagaCoordinator.Domain.Constracts.SagaStates;
+using SagaCoordinator.Domain.Constracts.UpdateStatus;
+using SagaCoordinator.Domain.Enums;
 
 namespace SagaCoordinator.Application.Saga
 {
     public class RegisterSaga : MassTransitStateMachine<RegisterSagaState>
     {
+        private readonly IPublishEndpoint _publishEndpoint;
         public State DatabasePending { get; private set; } = null!;
         public State NotificationPending { get; private set; } = null!;
         public State Rollback { get; private set; } = null!;
@@ -14,14 +17,15 @@ namespace SagaCoordinator.Application.Saga
         public Event<RegisterUserCommand> RegisterCommand { get; private set; } = null!;
         public Event<NotificationRegisterCommand> RegisterNotification { get; private set; } = null!;
         public Event<DeleteRegisterCommand> DeleteRegisterCommand { get; private set; } = null!;
-        public Event<NotificationSuccess> NotificationSuccess { get; private set; } = null!;
+        public Event<NotificationEvent> NotificationSuccess { get; private set; } = null!;
         public Event<UserCreationFailedEvent> UserCreationFailed { get; private set; } = null!;
         public Event<UserCreatedEvent> UserCreatedEvent { get; private set; } = null!;
         public Event<NotificationFailed> NotificationFailed { get; private set; } = null!;
 
         [Obsolete]
-        public RegisterSaga()
+        public RegisterSaga(IPublishEndpoint publishEndpoint)
         {
+            _publishEndpoint = publishEndpoint;
             InstanceState(x => x.CurrentState);
 
             Event(() => RegisterCommand, x => x.CorrelateById(m => m.Message.CorrelationId));
@@ -43,16 +47,21 @@ namespace SagaCoordinator.Application.Saga
                         context.Instance.PhoneNumber = context.Data.PhoneNumber;
                         context.Instance.Address = context.Data.Address;
                     })
+                    .Then(async context =>
+                    {
+                        await _publishEndpoint.Publish(new UpdateStatusSaga(context.Data.CorrelationId, TypeSaga.Register, StatusSaga.Pending, "Registering user"));
+                    })
                     .Send(new Uri("queue:register-queue"), context => context.Data)
                     .TransitionTo(DatabasePending)
             );
 
             During(DatabasePending,
                 When(UserCreatedEvent)
-                    .Then(context =>
+                    .Then( context =>
                     {
                         context.Instance.UserId = context.Data.UserId;
                         context.Instance.HashEmail = context.Data.HashEmail;
+
                     })
                     .Send(new Uri("queue:register-sendmail-queue"), context => new NotificationRegisterCommand
                     {
@@ -67,11 +76,7 @@ namespace SagaCoordinator.Application.Saga
                 When(UserCreationFailed)
                     .Then(async context =>
                     {
-                        await context.RespondAsync(new MessageResult
-                        {
-                            Message = context.Data.Message,
-                            IsSuccess = false
-                        });
+                        await _publishEndpoint.Publish(new UpdateStatusSaga(context.Data.CorrelationId, TypeSaga.Register, StatusSaga.Failed, context.Data.Message));
                     })
                     .Finalize()
             );
@@ -80,22 +85,14 @@ namespace SagaCoordinator.Application.Saga
                 When(NotificationSuccess)
                     .Then(async context =>
                     {
-                        await context.RespondAsync(new MessageResult
-                        {
-                            Message = "Đăng ký thành công",
-                            IsSuccess = true
-                        });
+                        await _publishEndpoint.Publish(new UpdateStatusSaga(context.Data.CorrelationId, TypeSaga.Register, StatusSaga.Completed, context.Data.Message));
                     })
                     .Finalize(),
 
                 When(NotificationFailed)
                     .Then(async context =>
                     {
-                        await context.RespondAsync(new MessageResult
-                        {
-                            Message = context.Data.Message,
-                            IsSuccess = false
-                        });
+                        await _publishEndpoint.Publish(new UpdateStatusSaga(context.Data.CorrelationId, TypeSaga.Register, StatusSaga.Failed, context.Data.Message));
                     })
                     .Send(new Uri("queue:register-delete-queue"), context => new DeleteRegisterCommand
                     {
@@ -109,11 +106,11 @@ namespace SagaCoordinator.Application.Saga
                 When(DeleteRegisterCommand)
                     .Then(async context =>
                     {
-                        await context.RespondAsync(new MessageResult
-                        {
-                            Message = "Đăng ký thất bại, đã xóa dữ liệu",
-                            IsSuccess = false
-                        });
+                        await _publishEndpoint.Publish(new UpdateStatusSaga(context.Data.CorrelationId, TypeSaga.Register, StatusSaga.Failed,null));
+                    })
+                    .Send(new Uri("queue:register-delete-queue"), context => new UserDeletedEvent
+                    {
+                        CorrelationId = context.Data.CorrelationId
                     })
                     .Finalize()
             );

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NotificationService.Domain.Constracts
+namespace RegisterConstracts.Commands
 {
     public class NotificationRegisterCommand
     {

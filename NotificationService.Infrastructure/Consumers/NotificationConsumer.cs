@@ -4,8 +4,9 @@ using MassTransit.Transports;
 using MediatR;
 using NotificationService.Application.Features.Dtos;
 using NotificationService.Application.Features.Notification.Commands;
-using NotificationService.Domain.Constracts;
 using NotificationService.Domain.Enums;
+using RegisterConstracts.Commands;
+using RegisterConstracts.Events;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -39,9 +40,10 @@ namespace NotificationService.Infrastructure.Consumers
             var result = await _mediator.Send(command);
             if (result.IsSuccess)
             {
-                await _publishEndpoint.Publish(new NotificationSuccess
+                await _publishEndpoint.Publish(new NotificationEvent
                 {
                     CorrelationId = context.Message.CorrelationId,
+                    Message = result.Message,
                 });
             }
             else

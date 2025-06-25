@@ -11,7 +11,7 @@ namespace AuthService.Application.Features.Users.Dtos
         public object? Data { get; set; }
         public string? Message { get; set; }
         public bool IsSuccess { get; set; }
-        public Guid? UserId { get; set; }
+        public Guid UserId { get; set; }
         public string? HashEmail { get; set; }
     }
 }

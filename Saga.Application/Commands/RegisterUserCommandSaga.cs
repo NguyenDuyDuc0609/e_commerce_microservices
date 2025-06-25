@@ -8,5 +8,5 @@ using System.Threading.Tasks;
 
 namespace SagaCoordinator.Application.Commands
 {
-    public record RegisterUserCommandSaga(string? Username, string? Email, string? PasswordHash, string? PhoneNumber, string? Address) : IRequest<MessageResult>;
+    public record RegisterUserCommandSaga(string? Username, string? Email, string? PasswordHash, string? PhoneNumber, string? Address) : IRequest<ModelResult>;
 }

@@ -1,8 +1,9 @@
 ﻿using AuthService.Application.Features.Users.Commands;
 using AuthService.Application.Features.Users.Dtos;
-using AuthService.Domain.Constracts;
 using MassTransit;
 using MediatR;
+using RegisterConstracts.Commands;
+using RegisterConstracts.Events;
 using System;
 using System.Collections.Generic;
 using System.Linq;

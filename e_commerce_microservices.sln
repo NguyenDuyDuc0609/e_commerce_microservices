@@ -39,6 +39,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SagaCoordinator.Domain", "S
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SagaCoordinator.Infrastructure", "SagaCoordinator.Infrastructure\SagaCoordinator.Infrastructure.csproj", "{9D7D852B-6535-4CBB-AAB8-36EBF59B9082}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Constracts", "Constracts", "{404FAC70-CEDE-49BC-AA33-DCA77E8F5CE5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RegisterConstracts", "RegisterConstracts\RegisterConstracts.csproj", "{D602640C-DB5B-4832-81EB-F99C0E79C934}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -97,6 +101,10 @@ Global
 		{9D7D852B-6535-4CBB-AAB8-36EBF59B9082}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9D7D852B-6535-4CBB-AAB8-36EBF59B9082}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9D7D852B-6535-4CBB-AAB8-36EBF59B9082}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D602640C-DB5B-4832-81EB-F99C0E79C934}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D602640C-DB5B-4832-81EB-F99C0E79C934}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D602640C-DB5B-4832-81EB-F99C0E79C934}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D602640C-DB5B-4832-81EB-F99C0E79C934}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -119,6 +127,8 @@ Global
 		{1CE9DEDF-D986-41B5-8B2B-2779867385E3} = {ACA4C780-1141-443D-B021-5061C9236EFD}
 		{BD6163B0-731A-4492-8DEF-97CC4C947F85} = {ACA4C780-1141-443D-B021-5061C9236EFD}
 		{9D7D852B-6535-4CBB-AAB8-36EBF59B9082} = {ACA4C780-1141-443D-B021-5061C9236EFD}
+		{404FAC70-CEDE-49BC-AA33-DCA77E8F5CE5} = {D50FC011-73EB-4D9A-A00C-D5E6ACD6CA3F}
+		{D602640C-DB5B-4832-81EB-F99C0E79C934} = {404FAC70-CEDE-49BC-AA33-DCA77E8F5CE5}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {7C6725A3-9C4A-41E4-9825-86CC0DD0E22A}

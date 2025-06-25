@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SagaCoordinator.Domain.Constracts.Register
+namespace RegisterConstracts.Commands
 {
     public class RegisterUserCommand
     {

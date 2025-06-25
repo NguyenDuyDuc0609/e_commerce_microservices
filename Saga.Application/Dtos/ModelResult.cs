@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace SagaCoordinator.Application.Dtos
 {
-    public class MessageResult
+    public class ModelResult
     {
-        public string? Message { get; set; }
-        public bool IsSuccess { get; set; }
+        public Guid? CorrelationId { get; set; }
+        public string? Message { get; set; } = default!;
     }
 }
