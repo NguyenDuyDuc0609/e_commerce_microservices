@@ -13,6 +13,7 @@ namespace SagaCoordinator.Application.Interfaces
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
         Task CommitAsync();
         void BeginTransaction();
+        Task BeginTransactionAsync();
         Task RollbackAsync();
     }
 }

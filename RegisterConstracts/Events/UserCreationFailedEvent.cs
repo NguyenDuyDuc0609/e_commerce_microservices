@@ -6,9 +6,17 @@ using System.Threading.Tasks;
 
 namespace RegisterConstracts.Events
 {
-    public class UserCreationFailedEvent
+    public record UserCreationFailedEvent
     {
-        public Guid CorrelationId { get; set; }
-        public string? Message { get; set; }
+        public Guid CorrelationId { get; init; }
+        public string? Message { get; init; }
+        public UserCreationFailedEvent(Guid correlationId, string? message)
+        {
+            CorrelationId = correlationId;
+            Message = message;
+        }
+        public UserCreationFailedEvent()
+        {
+        }
     }
 }

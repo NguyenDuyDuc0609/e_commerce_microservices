@@ -6,13 +6,13 @@ using System.Threading.Tasks;
 
 namespace RegisterConstracts.Commands
 {
-    public class NotificationRegisterCommand
+    public record NotificationRegisterCommand
     {
-        public Guid CorrelationId { get; set; }
-        public Guid UserId { get; set; }
-        public string? Username { get; set; }
-        public string? Email { get; set; }
-        public string? HashEmail { get; set; }
+        public Guid CorrelationId { get; init; }
+        public Guid UserId { get; init; }
+        public string? Username { get; init; }
+        public string? Email { get; init; }
+        public string? HashEmail { get; init; }
         public NotificationRegisterCommand(Guid correlationId, Guid userId, string? username, string? email, string? hashEmail)
         {
             CorrelationId = correlationId;

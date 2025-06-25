@@ -47,7 +47,6 @@ namespace AuthService.Application.Features.Handler
                     Message = ex.Message
                 };
             }
-            throw new NotImplementedException();
         }
     }
 }

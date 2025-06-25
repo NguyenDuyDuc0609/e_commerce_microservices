@@ -6,8 +6,15 @@ using System.Threading.Tasks;
 
 namespace RegisterConstracts.Events
 {
-    public class UserDeletedEvent
+    public record UserDeletedEvent
     {
-        public Guid CorrelationId { get; set; }
+        public Guid CorrelationId { get; init; }
+        public UserDeletedEvent(Guid correlationId)
+        {
+            CorrelationId = correlationId;
+        }
+        public UserDeletedEvent()
+        {
+        }
     }
 }

@@ -45,7 +45,6 @@ namespace AuthService.Infrastructure.Consumers
                         HashEmail = result.HashEmail,
                         PhoneNumber = commandRegister.PhoneNumber,
                         Address = commandRegister.Address
-                        
                     });
                 }
                 else
@@ -65,7 +64,6 @@ namespace AuthService.Infrastructure.Consumers
                     Message = "Invalid Register Command"
                 });
             }
-            await Task.CompletedTask;
         }
     }
 }

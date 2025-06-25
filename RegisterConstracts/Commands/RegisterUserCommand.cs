@@ -6,14 +6,14 @@ using System.Threading.Tasks;
 
 namespace RegisterConstracts.Commands
 {
-    public class RegisterUserCommand
+    public record RegisterUserCommand
     {
-        public Guid CorrelationId { get; set; }
-        public string? Username { get; set; }
-        public string? Email { get; set; }
-        public string? PasswordHash { get; set; }
-        public string? PhoneNumber { get; set; }
-        public string? Address { get; set; }
+        public Guid CorrelationId { get; init; }
+        public string? Username { get; init; }
+        public string? Email { get; init; }
+        public string? PasswordHash { get; init; }
+        public string? PhoneNumber { get; init; }
+        public string? Address { get; init; }
         public RegisterUserCommand(Guid correlationId, string? username, string? email, string? passwordHash, string? phoneNumber, string? address)
         {
             CorrelationId = correlationId;

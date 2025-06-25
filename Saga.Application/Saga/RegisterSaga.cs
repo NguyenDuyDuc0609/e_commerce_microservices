@@ -2,6 +2,7 @@
 using RegisterConstracts.Commands;
 using RegisterConstracts.Events;
 using SagaCoordinator.Domain.Constracts.SagaStates;
+using SagaCoordinator.Domain.Constracts.StartSaga;
 using SagaCoordinator.Domain.Constracts.UpdateStatus;
 using SagaCoordinator.Domain.Enums;
 
@@ -9,23 +10,22 @@ namespace SagaCoordinator.Application.Saga
 {
     public class RegisterSaga : MassTransitStateMachine<RegisterSagaState>
     {
-        private readonly IPublishEndpoint _publishEndpoint;
         public State DatabasePending { get; private set; } = null!;
         public State NotificationPending { get; private set; } = null!;
         public State Rollback { get; private set; } = null!;
 
-        public Event<RegisterUserCommand> RegisterCommand { get; private set; } = null!;
+        public Event<StartRegisterSagaCommand> RegisterCommand { get; private set; } = null!;
         public Event<NotificationRegisterCommand> RegisterNotification { get; private set; } = null!;
         public Event<DeleteRegisterCommand> DeleteRegisterCommand { get; private set; } = null!;
         public Event<NotificationEvent> NotificationSuccess { get; private set; } = null!;
         public Event<UserCreationFailedEvent> UserCreationFailed { get; private set; } = null!;
         public Event<UserCreatedEvent> UserCreatedEvent { get; private set; } = null!;
         public Event<NotificationFailed> NotificationFailed { get; private set; } = null!;
+        public Event<UserDeletedEvent> UserDeletedEvent { get; private set; } = null!;
 
         [Obsolete]
-        public RegisterSaga(IPublishEndpoint publishEndpoint)
+        public RegisterSaga()
         {
-            _publishEndpoint = publishEndpoint;
             InstanceState(x => x.CurrentState);
 
             Event(() => RegisterCommand, x => x.CorrelateById(m => m.Message.CorrelationId));
@@ -47,9 +47,14 @@ namespace SagaCoordinator.Application.Saga
                         context.Instance.PhoneNumber = context.Data.PhoneNumber;
                         context.Instance.Address = context.Data.Address;
                     })
-                    .Then(async context =>
+                    .ThenAsync(async context =>
                     {
-                        await _publishEndpoint.Publish(new UpdateStatusSaga(context.Data.CorrelationId, TypeSaga.Register, StatusSaga.Pending, "Registering user"));
+                        await context.Publish(new UpdateStatusSaga(
+                            context.Data.CorrelationId,
+                            TypeSaga.Register,
+                            StatusSaga.Pending,
+                            "Registering user"
+                        ));
                     })
                     .Send(new Uri("queue:register-queue"), context => context.Data)
                     .TransitionTo(DatabasePending)
@@ -57,11 +62,10 @@ namespace SagaCoordinator.Application.Saga
 
             During(DatabasePending,
                 When(UserCreatedEvent)
-                    .Then( context =>
+                    .Then(context =>
                     {
                         context.Instance.UserId = context.Data.UserId;
                         context.Instance.HashEmail = context.Data.HashEmail;
-
                     })
                     .Send(new Uri("queue:register-sendmail-queue"), context => new NotificationRegisterCommand
                     {
@@ -74,25 +78,40 @@ namespace SagaCoordinator.Application.Saga
                     .TransitionTo(NotificationPending),
 
                 When(UserCreationFailed)
-                    .Then(async context =>
+                    .ThenAsync(async context =>
                     {
-                        await _publishEndpoint.Publish(new UpdateStatusSaga(context.Data.CorrelationId, TypeSaga.Register, StatusSaga.Failed, context.Data.Message));
+                        await context.Publish(new UpdateStatusSaga(
+                            context.Data.CorrelationId,
+                            TypeSaga.Register,
+                            StatusSaga.Failed,
+                            context.Data.Message
+                        ));
                     })
                     .Finalize()
             );
 
             During(NotificationPending,
                 When(NotificationSuccess)
-                    .Then(async context =>
+                    .ThenAsync(async context =>
                     {
-                        await _publishEndpoint.Publish(new UpdateStatusSaga(context.Data.CorrelationId, TypeSaga.Register, StatusSaga.Completed, context.Data.Message));
+                        await context.Publish(new UpdateStatusSaga(
+                            context.Data.CorrelationId,
+                            TypeSaga.Register,
+                            StatusSaga.Completed,
+                            context.Data.Message
+                        ));
                     })
                     .Finalize(),
 
                 When(NotificationFailed)
-                    .Then(async context =>
+                    .ThenAsync(async context =>
                     {
-                        await _publishEndpoint.Publish(new UpdateStatusSaga(context.Data.CorrelationId, TypeSaga.Register, StatusSaga.Failed, context.Data.Message));
+                        await context.Publish(new UpdateStatusSaga(
+                            context.Data.CorrelationId,
+                            TypeSaga.Register,
+                            StatusSaga.Failed,
+                            context.Data.Message
+                        ));
                     })
                     .Send(new Uri("queue:register-delete-queue"), context => new DeleteRegisterCommand
                     {
@@ -103,14 +122,15 @@ namespace SagaCoordinator.Application.Saga
             );
 
             During(Rollback,
-                When(DeleteRegisterCommand)
-                    .Then(async context =>
+                When(UserDeletedEvent)
+                    .ThenAsync(async context =>
                     {
-                        await _publishEndpoint.Publish(new UpdateStatusSaga(context.Data.CorrelationId, TypeSaga.Register, StatusSaga.Failed,null));
-                    })
-                    .Send(new Uri("queue:register-delete-queue"), context => new UserDeletedEvent
-                    {
-                        CorrelationId = context.Data.CorrelationId
+                        await context.Publish(new UpdateStatusSaga(
+                            context.Data.CorrelationId,
+                            TypeSaga.Register,
+                            StatusSaga.Failed,
+                            null
+                        ));
                     })
                     .Finalize()
             );

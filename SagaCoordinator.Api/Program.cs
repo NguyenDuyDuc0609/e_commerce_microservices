@@ -1,10 +1,23 @@
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using SagaCoordinator.Application.Handlers;
+using SagaCoordinator.Application.Interfaces;
+using SagaCoordinator.Application.Saga;
+using SagaCoordinator.Domain.Constracts.SagaStates;
+using SagaCoordinator.Infrastructure.Consumers;
 using SagaCoordinator.Infrastructure.Persistence;
+using SagaCoordinator.Infrastructure.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
-
+var redisSettings = builder.Configuration.GetSection("Redis");
+string redisHost = redisSettings["Host"];
+int redisPort = int.Parse(redisSettings["Port"]);
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration = $"{redisHost}:{redisPort}";
+    options.InstanceName = "Saga_";
+});
 // Add services to the container.
 
 builder.Services.AddControllers();
@@ -24,6 +37,15 @@ builder.Services.AddDbContext<SagaContext>(options =>
 });
 builder.Services.AddMassTransit(x =>
 {
+    x.AddConsumer<SagaStatusConsumer>();
+
+    x.AddSagaStateMachine<RegisterSaga, RegisterSagaState>()
+    .EntityFrameworkRepository(r =>
+    {
+       r.ExistingDbContext<SagaContext>();
+       r.UsePostgres();
+    });
+
     x.AddEntityFrameworkOutbox<SagaContext>(cfg =>
     {
         cfg.QueryDelay = TimeSpan.FromSeconds(30);
@@ -36,14 +58,24 @@ builder.Services.AddMassTransit(x =>
     x.UsingRabbitMq((context, cfg) =>
     {
         cfg.Host("localhost", "/", h =>
-        //cfg.Host("bloodcenter.rabbitmq", "/", h =>
         {
             h.Username("guest");
             h.Password("guest");
         });
+
         cfg.ConfigureEndpoints(context);
     });
 });
+
+builder.Services.AddMediatR(cfg =>
+{
+    cfg.RegisterServicesFromAssembly(typeof(RegisterSagaHanlder).Assembly);
+});
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<ISagaRepository, SagaRepository>();
+builder.Services.AddScoped<ISagaRedis, SagaRedis>();
+
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

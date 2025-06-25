@@ -6,9 +6,17 @@ using System.Threading.Tasks;
 
 namespace RegisterConstracts.Events
 {
-    public class NotificationEvent
+    public record NotificationEvent
     {
-        public Guid CorrelationId { get; set; }
-        public string? Message { get; set; } = default!;
+        public Guid CorrelationId { get; init; }
+        public string? Message { get; init; } = default!;
+        public NotificationEvent(Guid correlationId, string? message)
+        {
+            CorrelationId = correlationId;
+            Message = message;
+        }
+        public NotificationEvent()
+        {
+        }
     }
 }

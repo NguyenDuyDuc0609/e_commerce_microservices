@@ -18,11 +18,11 @@ namespace SagaCoordinator.Infrastructure.Repositories
         {
             _context = context;
         }
-        public async Task<bool> AddNewSaga(Guid correlationId, TypeSaga typeSaga, string? message)
+        public async Task<object> AddNewSaga(Guid correlationId, TypeSaga typeSaga, string? message)
         {
             var saga = new SagaStatus(correlationId, typeSaga, StatusSaga.Pending, message);
             await _context.SagaStatuses.AddAsync(saga);
-            return await _context.SaveChangesAsync() > 0;
+            return saga;
         }
 
         public async Task<StatusSaga?> GetSagaStatus(Guid correlationId, TypeSaga typeSaga)

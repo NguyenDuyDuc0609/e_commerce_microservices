@@ -34,7 +34,6 @@ namespace AuthService.Infrastructure.Consumers
                         CorrelationId = context.Message.CorrelationId
                     });
                 }
-                await Task.CompletedTask;
             }
         }
     }

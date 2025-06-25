@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace RegisterConstracts.Commands
 {
-    public class DeleteRegisterCommand
+    public record DeleteRegisterCommand
     {
-        public Guid CorrelationId { get; set; }
-        public Guid UserId { get; set; }
+        public Guid CorrelationId { get; init; }
+        public Guid UserId { get; init; }
         public DeleteRegisterCommand(Guid correlationId, Guid userId)
         {
             CorrelationId = correlationId;

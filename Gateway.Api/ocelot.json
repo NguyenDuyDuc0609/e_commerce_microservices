@@ -9,7 +9,19 @@
           "Port": 7020
         }
       ],
-      "UpstreamPathTemplate": "/auth/login",
+      "UpstreamPathTemplate": "/api/auth/login",
+      "UpstreamHttpMethod": [ "POST" ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/Saga/register-saga",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7151
+        }
+      ],
+      "UpstreamPathTemplate": "/api/Saga/register-saga",
       "UpstreamHttpMethod": [ "POST" ]
     },
     {

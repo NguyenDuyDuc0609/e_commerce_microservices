@@ -1,8 +1,9 @@
 ﻿using MassTransit;
 using MediatR;
+using RegisterConstracts.Commands;
 using SagaCoordinator.Application.Commands;
 using SagaCoordinator.Application.Dtos;
-using SagaCoordinator.Domain.Constracts.Register;
+using SagaCoordinator.Domain.Constracts.StartSaga;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,15 +23,14 @@ namespace SagaCoordinator.Application.Handlers
         {
             try
             {
-                var command = new RegisterUserCommand
-                {
-                    CorrelationId = Guid.NewGuid(),
-                    Username = request.Username,
-                    Email = request.Email,
-                    PasswordHash = request.PasswordHash,
-                    PhoneNumber = request.PhoneNumber,
-                    Address = request.Address
-                };
+                var command = new StartRegisterSagaCommand(
+                    Guid.NewGuid(),
+                    request.Username,
+                    request.Email,
+                    request.PasswordHash,
+                    request.PhoneNumber,
+                    request.Address
+                );
                 await _publishEndpoint.Publish(command, cancellationToken);
                 return new ModelResult
                 {

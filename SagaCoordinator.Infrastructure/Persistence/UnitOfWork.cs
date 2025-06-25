@@ -1,9 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore.Storage;
 using SagaCoordinator.Application.Interfaces;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace SagaCoordinator.Infrastructure.Persistence
@@ -12,24 +10,37 @@ namespace SagaCoordinator.Infrastructure.Persistence
     {
         private readonly SagaContext _context;
         private IDbContextTransaction? _transaction;
-        public ISagaRedis? SagaRedis { get; }
 
-        public ISagaRepository? SagaRepository { get; }
-        public UnitOfWork(SagaContext context, ISagaRedis? sagaRedis, ISagaRepository? sagaRepository)
+        public ISagaRedis SagaRedis { get; }
+        public ISagaRepository SagaRepository { get; }
+
+        public UnitOfWork(SagaContext context, ISagaRedis sagaRedis, ISagaRepository sagaRepository)
         {
-            _context = context;
-            SagaRedis = sagaRedis;
-            SagaRepository = sagaRepository;
+            _context = context ?? throw new ArgumentNullException(nameof(context));
+            SagaRedis = sagaRedis ?? throw new ArgumentNullException(nameof(sagaRedis));
+            SagaRepository = sagaRepository ?? throw new ArgumentNullException(nameof(sagaRepository));
         }
 
         public void BeginTransaction()
         {
-            _context.Database.BeginTransaction();
+            _transaction = _context.Database.BeginTransaction();
+        }
+
+        public async Task BeginTransactionAsync()
+        {
+            _transaction = await _context.Database.BeginTransactionAsync();
         }
 
         public async Task CommitAsync()
         {
             await _context.SaveChangesAsync();
+
+            if (_transaction != null)
+            {
+                await _transaction.CommitAsync();
+                await _transaction.DisposeAsync();
+                _transaction = null;
+            }
         }
 
         public async Task RollbackAsync()

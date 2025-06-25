@@ -6,10 +6,19 @@ using System.Threading.Tasks;
 
 namespace RegisterConstracts.Events
 {
-    public class NotificationFailed
+    public record NotificationFailed
     {
-        public Guid CorrelationId { get; set; }
-        public string? Message { get; set; }
-        public Guid? UserId { get; set; }
+        public Guid CorrelationId { get; init; }
+        public string? Message { get; init; }
+        public Guid? UserId { get; init; }
+        public NotificationFailed(Guid correlationId, string? message, Guid? userId)
+        {
+            CorrelationId = correlationId;
+            Message = message;
+            UserId = userId;
+        }
+        public NotificationFailed()
+        {
+        }
     }
 }

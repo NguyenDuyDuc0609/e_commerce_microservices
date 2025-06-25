@@ -92,7 +92,6 @@ builder.Services.AddMassTransit(x =>
         cfg.UsePostgres();
         cfg.UseBusOutbox();
     });
-
     x.UsingRabbitMq((context, cfg) =>
     {
         cfg.Host("localhost", "/", h =>
