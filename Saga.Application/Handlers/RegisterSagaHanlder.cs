@@ -1,9 +1,12 @@
 ﻿using MassTransit;
+using MassTransit.Transports;
 using MediatR;
 using RegisterConstracts.Commands;
 using SagaCoordinator.Application.Commands;
 using SagaCoordinator.Application.Dtos;
+using SagaCoordinator.Application.Interfaces;
 using SagaCoordinator.Domain.Constracts.StartSaga;
+using SagaCoordinator.Domain.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,13 +15,11 @@ using System.Threading.Tasks;
 
 namespace SagaCoordinator.Application.Handlers
 {
-    public class RegisterSagaHanlder : IRequestHandler<RegisterUserCommandSaga, ModelResult>
+    public class RegisterSagaHanlder(IUnitOfWork unitOfWork, IPublishEndpoint publishEndpoint) : IRequestHandler<RegisterUserCommandSaga, ModelResult>
     {
-        private readonly IPublishEndpoint _publishEndpoint;
-        public RegisterSagaHanlder(IPublishEndpoint publishEndpoint)
-        {
-            _publishEndpoint = publishEndpoint;
-        }
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
+        private readonly IPublishEndpoint _publishEndpoint = publishEndpoint;
+
         public async Task<ModelResult> Handle(RegisterUserCommandSaga request, CancellationToken cancellationToken)
         {
             try
@@ -31,7 +32,13 @@ namespace SagaCoordinator.Application.Handlers
                     request.PhoneNumber,
                     request.Address
                 );
+                await _unitOfWork.SagaRedis.SetSagaRedis(command.CorrelationId, command);
+                await _unitOfWork.SagaRepository.AddNewSaga(command.CorrelationId, TypeSaga.Register, "Register processing");
+
                 await _publishEndpoint.Publish(command, cancellationToken);
+
+                await _unitOfWork.SaveChangesAsync(cancellationToken); 
+
                 return new ModelResult
                 {
                     Message = "User registration is processing",

@@ -57,19 +57,22 @@ builder.Services.AddMassTransit(x =>
 
     x.UsingRabbitMq((context, cfg) =>
     {
+
         cfg.Host("localhost", "/", h =>
         {
             h.Username("guest");
             h.Password("guest");
         });
-
         cfg.ConfigureEndpoints(context);
     });
 });
 
 builder.Services.AddMediatR(cfg =>
 {
-    cfg.RegisterServicesFromAssembly(typeof(RegisterSagaHanlder).Assembly);
+    cfg.RegisterServicesFromAssemblies(
+        typeof(Program).Assembly,
+        typeof(RegisterSagaHanlder).Assembly
+        );
 });
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<ISagaRepository, SagaRepository>();

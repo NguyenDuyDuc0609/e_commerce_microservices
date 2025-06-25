@@ -27,7 +27,7 @@ namespace AuthService.Infrastructure.Repositories
         public async Task<bool> AddUserAsync(User user)
         {
             await _auth.Users.AddAsync(user);
-            return await _auth.SaveChangesAsync() > 0;
+            return true;
         }
 
         public async Task<bool> DeleteAsync(Guid id)
@@ -88,11 +88,7 @@ namespace AuthService.Infrastructure.Repositories
             var user = await _auth.Users
                 .Where(u => (u.Username == username || u.Email == email) && u.IsActive)
                 .FirstOrDefaultAsync();
-            if(user == null)
-            {
-                return true;
-            }
-            return false;
+            return user != null;
         }
     }
 }

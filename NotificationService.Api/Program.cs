@@ -9,6 +9,7 @@ using Npgsql;
 using MediatR;
 using NotificationService.Application.Features.Handler;
 using NotificationService.Infrastructure.EmailStrategy;
+using Org.BouncyCastle.Asn1.X509.Qualified;
 var builder = WebApplication.CreateBuilder(args);
 
 
@@ -55,7 +56,10 @@ builder.Services.AddMassTransit(x =>
 });
 builder.Services.AddMediatR(cfg =>
 {
-    cfg.RegisterServicesFromAssembly(typeof(NotificationSendMailHandler).Assembly);
+    cfg.RegisterServicesFromAssemblies(
+        typeof(Program).Assembly,
+        typeof(NotificationSendMailHandler).Assembly
+    );
 });
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<IEmailSender, EmailSender>();

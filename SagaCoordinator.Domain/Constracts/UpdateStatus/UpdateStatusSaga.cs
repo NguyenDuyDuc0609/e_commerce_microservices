@@ -11,7 +11,7 @@ namespace SagaCoordinator.Domain.Constracts.UpdateStatus
     {
         public Guid CorrelationId { get; set; }
         public TypeSaga TypeSaga { get; set; }
-        public StatusSaga Status { get; private set; }
+        public StatusSaga Status { get; set; }
         public string? Message { get; set; }
         public UpdateStatusSaga(Guid correlationId, TypeSaga typeSaga, StatusSaga status, string? message)
         {
@@ -22,10 +22,6 @@ namespace SagaCoordinator.Domain.Constracts.UpdateStatus
         }
         public UpdateStatusSaga()
         {
-        }
-        public void UpdateStatus(StatusSaga status)
-        {
-            Status = status;
         }
     }
 }

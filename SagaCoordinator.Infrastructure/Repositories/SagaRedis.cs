@@ -1,5 +1,7 @@
-﻿using Microsoft.Extensions.Caching.Distributed;
+﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.Extensions.Caching.Distributed;
 using SagaCoordinator.Application.Interfaces;
+using SagaCoordinator.Domain.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,6 +18,13 @@ namespace SagaCoordinator.Infrastructure.Repositories
         {
             _distributedCache = distributedCache;
         }
+
+        public async Task ChangeSagaStatus(Guid correlationId, object saga)
+        {
+            await _distributedCache.RemoveAsync(correlationId.ToString());
+            await SetSagaRedis(correlationId, saga);
+        }
+
         public async Task<T?> GetSagaRedis<T>(Guid correlationId) where T : class
         {
             string? saga = await _distributedCache.GetStringAsync(correlationId.ToString());

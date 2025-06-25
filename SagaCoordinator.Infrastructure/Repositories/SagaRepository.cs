@@ -40,13 +40,14 @@ namespace SagaCoordinator.Infrastructure.Repositories
                 .AnyAsync(s => s.CorrelationId == correlationId && s.TypeSaga == typeSaga);
         }
 
-        public async Task<bool> UpdateSagaStatus(Guid correlationId, TypeSaga typeSaga, StatusSaga status)
+        public async Task<bool> UpdateSagaStatus(Guid correlationId, TypeSaga typeSaga, StatusSaga status, string? message)
         {
             var saga = await _context.SagaStatuses
                 .Where(s => s.CorrelationId == correlationId && s.TypeSaga == typeSaga)
                 .FirstOrDefaultAsync();
             if (saga == null) return false;
             saga.UpdateStatus(status);
+            saga.Message = message;
             return true;
         }
     }

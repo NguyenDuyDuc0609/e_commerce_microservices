@@ -23,6 +23,7 @@ namespace AuthService.Infrastructure.Consumers
         }
         public async Task Consume(ConsumeContext<RegisterUserCommand> context)
         {
+            Console.WriteLine($"[RegisterConsumer] Received RegisterUserCommand with CorrelationId: {context.Message.CorrelationId}");
             var commandRegister = context.Message;
             if (commandRegister != null)
             {

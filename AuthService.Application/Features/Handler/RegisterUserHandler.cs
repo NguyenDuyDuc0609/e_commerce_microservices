@@ -21,7 +21,7 @@ namespace AuthService.Application.Features.Handler
         }
         public async Task<UserDto> Handle(RegisterUserCommands request, CancellationToken cancellationToken)
         {
-            _unitOfWork.BeginTransaction();
+            //_unitOfWork.BeginTransaction();
             try
             {
                 var validateEmail = ValidateEmail.IsValidEmail(request.Email);
@@ -34,7 +34,7 @@ namespace AuthService.Application.Features.Handler
                     };
                 }
                 var checkExits = await _unitOfWork.UserRepository.UserExistsAsync(request.Username, request.Email);
-                if (!checkExits)
+                if (checkExits)
                 {
                     return new UserDto
                     {
@@ -61,7 +61,7 @@ namespace AuthService.Application.Features.Handler
                         Message = "Failed to register user. Please try again."
                     };
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
-                await _unitOfWork.CommitAsync();
+                //await _unitOfWork.CommitAsync();
                 return new UserDto
                 {
                     IsSuccess = true,

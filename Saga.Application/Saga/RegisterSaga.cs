@@ -53,10 +53,18 @@ namespace SagaCoordinator.Application.Saga
                             context.Data.CorrelationId,
                             TypeSaga.Register,
                             StatusSaga.Pending,
-                            "Registering user"
+                            "Registering send from saga user"
                         ));
                     })
-                    .Send(new Uri("queue:register-queue"), context => context.Data)
+                    .Send(new Uri("queue:register-queue"), context => new RegisterUserCommand
+                    {
+                        CorrelationId = context.Data.CorrelationId,
+                        Username = context.Data.Username,
+                        Email = context.Data.Email,
+                        PasswordHash = context.Data.PasswordHash,
+                        PhoneNumber = context.Data.PhoneNumber,
+                        Address = context.Data.Address
+                    })
                     .TransitionTo(DatabasePending)
             );
 

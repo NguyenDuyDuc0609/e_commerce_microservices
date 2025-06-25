@@ -113,7 +113,11 @@ builder.Services.AddMassTransit(x =>
 
 builder.Services.AddMediatR(cfg =>
 {
-    cfg.RegisterServicesFromAssembly(typeof(RegisterUserHandler).Assembly);
+    cfg.RegisterServicesFromAssemblies(
+        typeof(Program).Assembly,
+        typeof(RegisterUserHandler).Assembly,
+        typeof(DeleteUserHandler).Assembly
+        );
 });
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IRoleRepository, RoleRepository>();

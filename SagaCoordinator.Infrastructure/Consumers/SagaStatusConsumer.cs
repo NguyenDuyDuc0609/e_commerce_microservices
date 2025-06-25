@@ -23,18 +23,13 @@ namespace SagaCoordinator.Infrastructure.Consumers
             await _unitOfWork.BeginTransactionAsync();
             try
             {
-                var saga = await _unitOfWork.SagaRepository.AddNewSaga(
+                await _unitOfWork.SagaRepository.UpdateSagaStatus(
                     context.Message.CorrelationId,
                     context.Message.TypeSaga,
+                    context.Message.Status,
                     context.Message.Message
                 );
-
-                if (saga == null)
-                {
-                    throw new Exception("AddNewSaga returned null");
-                }
-
-                await _unitOfWork.SagaRedis.SetSagaRedis(context.Message.CorrelationId, saga);
+                await _unitOfWork.SagaRedis.ChangeSagaStatus(context.Message.CorrelationId, context.Message);
 
                 await _unitOfWork.CommitAsync();
             }
