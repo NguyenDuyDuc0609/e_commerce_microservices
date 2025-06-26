@@ -10,13 +10,10 @@ using System.Threading.Tasks;
 
 namespace AuthService.Infrastructure.Repositories
 {
-    public class RoleRepository : IRoleRepository
+    public class RoleRepository(AuthDbContext auth) : IRoleRepository
     {
-        private readonly AuthDbContext _auth;
-        public RoleRepository(AuthDbContext auth)
-        {
-            _auth = auth;
-        }
+        private readonly AuthDbContext _auth = auth;
+
         public async Task<bool> AddAsync(Role entity)
         {
             throw new NotImplementedException();

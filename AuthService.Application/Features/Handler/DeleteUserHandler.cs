@@ -10,16 +10,12 @@ using System.Threading.Tasks;
 
 namespace AuthService.Application.Features.Handler
 {
-    public class DeleteUserHandler : IRequestHandler<DeleteCommad, UserDto>
+    public class DeleteUserHandler(IUnitOfWork unitOfWork) : IRequestHandler<DeleteCommad, UserDto>
     {
-        private readonly IUnitOfWork _unitOfWork;
-        public DeleteUserHandler(IUnitOfWork unitOfWork)
-        {
-            _unitOfWork = unitOfWork;
-        }
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
+
         public async Task<UserDto> Handle(DeleteCommad request, CancellationToken cancellationToken)
         {
-            _unitOfWork.BeginTransaction();
             try
             {
                 var result = await _unitOfWork.UserRepository.DeleteAsync(request.UserId);
@@ -31,7 +27,6 @@ namespace AuthService.Application.Features.Handler
                         Message = "User deletion failed or user does not exist."
                     };
                 }
-                await _unitOfWork.CommitAsync();
                 return new UserDto
                 {
                     IsSuccess = true,
@@ -40,7 +35,6 @@ namespace AuthService.Application.Features.Handler
             }
             catch (Exception ex)
             {
-                await _unitOfWork.RollbackAsync();
                 return new UserDto
                 {
                     IsSuccess = false,

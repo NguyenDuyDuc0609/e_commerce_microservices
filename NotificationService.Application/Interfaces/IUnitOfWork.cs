@@ -8,8 +8,8 @@ namespace NotificationService.Application.Interfaces
 {
     public interface IUnitOfWork
     {
-        INotificationRepository? NotificationRepository { get; }
-        INotificationStrategy? NotificationStrategy { get; }
+        INotificationRepository NotificationRepository { get; }
+        INotificationStrategy NotificationStrategy { get; }
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
         Task CommitAsync();
         void BeginTransaction();

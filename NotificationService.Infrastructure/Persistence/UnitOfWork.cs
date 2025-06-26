@@ -9,20 +9,13 @@ using System.Threading.Tasks;
 
 namespace NotificationService.Infrastructure.Persistence
 {
-    public class UnitOfWork : IUnitOfWork
+    public class UnitOfWork(NotificationContext context, INotificationRepository notificationRepository, INotificationStrategy notificationStrategy) : IUnitOfWork
     {
-        private readonly NotificationContext _context;
+        private readonly NotificationContext _context = context;
         private IDbContextTransaction? _transaction;
-        public INotificationRepository? NotificationRepository { get; }
+        public INotificationRepository NotificationRepository { get; } = notificationRepository;
 
-        public INotificationStrategy? NotificationStrategy { get; }
-
-        public UnitOfWork(NotificationContext context, INotificationRepository? notificationRepository, IEmailSender? emailSender, INotificationStrategy? notificationStrategy)
-        {
-            _context = context;
-            NotificationRepository = notificationRepository;
-            NotificationStrategy = notificationStrategy;
-        }
+        public INotificationStrategy NotificationStrategy { get; } = notificationStrategy;
 
         public void BeginTransaction()
         {

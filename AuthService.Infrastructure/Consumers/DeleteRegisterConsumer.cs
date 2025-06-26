@@ -1,6 +1,8 @@
 ﻿using AuthService.Application.Features.Users.Commands;
 using AuthService.Application.Features.Users.Dtos;
+using AuthService.Application.Interfaces;
 using MassTransit;
+using MassTransit.Introspection;
 using MediatR;
 using RegisterConstracts.Commands;
 using RegisterConstracts.Events;
@@ -12,15 +14,12 @@ using System.Threading.Tasks;
 
 namespace AuthService.Infrastructure.Consumers
 {
-    public class DeleteRegisterConsumer : IConsumer<DeleteRegisterCommand>
+    public class DeleteRegisterConsumer(IMediator mediator, IPublishEndpoint publishEndpoint, IUnitOfWork unitOfWork) : IConsumer<DeleteRegisterCommand>
     {
-        private readonly IMediator _mediator;
-        private readonly IPublishEndpoint _publishEndpoint;
-        public DeleteRegisterConsumer(IMediator mediator, IPublishEndpoint publishEndpoint)
-        {
-            _mediator = mediator;
-            _publishEndpoint = publishEndpoint;
-        }
+        private readonly IMediator _mediator = mediator;
+        private readonly IPublishEndpoint _publishEndpoint = publishEndpoint;
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
+
         public async Task Consume(ConsumeContext<DeleteRegisterCommand> context)
         {
             var command = context.Message;
@@ -33,6 +32,8 @@ namespace AuthService.Infrastructure.Consumers
                     {
                         CorrelationId = context.Message.CorrelationId
                     });
+                    await _unitOfWork.SaveChangesAsync();
+                    await _unitOfWork.CommitAsync();
                 }
             }
         }

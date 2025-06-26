@@ -8,28 +8,25 @@ using System.Threading.Tasks;
 
 namespace NotificationService.Infrastructure.EmailStrategy
 {
-    public class RegisterSendMail : INotificationStrategy
+    public class RegisterSendMail(IEmailSender emailSender) : INotificationStrategy
     {
-        private readonly IEmailSender _emailSender;
-        public RegisterSendMail(IEmailSender emailSender)
-        {
-            _emailSender = emailSender;
-        }
+        private readonly IEmailSender _emailSender = emailSender;
+
         public async Task<NotificationResult> SendAsync(NotificationMessage message)
         {
-            var result = await _emailSender.SendEmailAsync(message.Email, message.UserName, "Click here to virify your acccount");
-            if (result)
+            var result = await _emailSender.SendEmailAsync(message.Email, message.UserName, message.HashEmail);
+            if (result.isSuccess)
             {
                 return new NotificationResult
                 {
                     IsSuccess = true,
-                    Message = "Email sent successfully.",
+                    Message = result.message,
                 };
             }
             return new NotificationResult
             {
                 IsSuccess = false,
-                Message = "Failed to send email.",
+                Message = result.message,
             };
         }
     }

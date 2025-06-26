@@ -11,33 +11,33 @@ using System.Threading.Tasks;
 
 namespace AuthService.Infrastructure.Repositories
 {
-    public class UserRepository : IUserRepository
+    public class UserRepository(AuthDbContext auth) : IUserRepository
     {
-        private readonly AuthDbContext _auth;
-        public UserRepository(AuthDbContext auth)
-        {
-            _auth = auth;
-        }
+        private readonly AuthDbContext _auth = auth;
+
         public async Task<bool> AddAsync(User entity)
         {
-            await _auth.Users.AddAsync(entity);
-            return await _auth.SaveChangesAsync() > 0;
+            var entry = await _auth.Users.AddAsync(entity);
+            return entry.State == EntityState.Added;
         }
 
         public async Task<bool> AddUserAsync(User user)
         {
-            await _auth.Users.AddAsync(user);
-            return true;
+            var entry = await _auth.Users.AddAsync(user);
+            return entry.State == EntityState.Added;
         }
 
         public async Task<bool> DeleteAsync(Guid id)
         {
-            var user = await _auth.Users.Where( u => u.UserId == id).FirstOrDefaultAsync();
+            var user = await _auth.Users.FirstOrDefaultAsync(u => u.UserId == id);
+            if (user == null)
+            {
+                return false;
+            }
+
             user.MarkAsDeleted();
-            _auth.Users.Update(user);
             return true;
         }
-
         public async Task<bool> ExistsAsync(Guid id)
         {
             var user = await _auth.Users

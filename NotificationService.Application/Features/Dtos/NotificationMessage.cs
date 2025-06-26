@@ -7,21 +7,12 @@ using System.Threading.Tasks;
 
 namespace NotificationService.Application.Features.Dtos
 {
-    public class NotificationMessage
+    public class NotificationMessage(NotificationType type, string? userName, Guid userId, string hashEmail, string email)
     {
-        public NotificationType Type { get; set; }
-        public string? UserName { get; set; } 
-        public Guid UserId { get; set; }
-        public string? HashEmail { get; set; }
-        public string? Email { get; set; }
-        public NotificationMessage() { }
-        public NotificationMessage(NotificationType type, string? userName, Guid userId, string? hashEmail, string? email)
-        {
-            Type = type;
-            UserName = userName;
-            UserId = userId;
-            HashEmail = hashEmail;
-            Email = email;
-        }
+        public NotificationType Type { get; set; } = type;
+        public string? UserName { get; set; } = userName;
+        public Guid UserId { get; set; } = userId;
+        public string HashEmail { get; set; } = hashEmail;
+        public string Email { get; set; } = email;
     }
 }

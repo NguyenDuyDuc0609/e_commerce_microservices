@@ -1,12 +1,22 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using MassTransit;
+using MassTransit.Transports;
+using MediatR;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using NotificationService.Application.Features.Dtos;
+using NotificationService.Application.Features.Notification.Commands;
+using NotificationService.Domain.Enums;
+using RegisterConstracts.Commands;
 
 namespace NotificationService.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class NotificationController : ControllerBase
+    public class NotificationController(ISendEndpointProvider sendEndpointProvider) : ControllerBase
     {
+
+        private readonly ISendEndpointProvider _sendEndpointProvider = sendEndpointProvider;
+
         [HttpGet("status")]
         public IActionResult GetStatus()
         {

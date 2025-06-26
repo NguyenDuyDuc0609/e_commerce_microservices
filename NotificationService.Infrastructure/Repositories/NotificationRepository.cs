@@ -1,4 +1,5 @@
-﻿using NotificationService.Application.Interfaces;
+﻿using Microsoft.EntityFrameworkCore;
+using NotificationService.Application.Interfaces;
 using NotificationService.Domain.Entities;
 using NotificationService.Domain.Enums;
 using NotificationService.Infrastructure.Persistence;
@@ -10,26 +11,19 @@ using System.Threading.Tasks;
 
 namespace NotificationService.Infrastructure.Repositories
 {
-    public class NotificationRepository : INotificationRepository
+    public class NotificationRepository(NotificationContext context) : INotificationRepository
     {
-        private readonly NotificationContext _context;
-        public NotificationRepository(NotificationContext context)
-        {
-            _context = context;
-        }
+        private readonly NotificationContext _context = context;
+
         public async Task<bool> AddNotificationAsync(Guid userId, string recipient, string subject, string body, NotificationType type)
         {
             var notification = new NotificationLog(userId, recipient, subject, body, type);
-            var result = await _context.NotificationLogs.AddAsync(notification);
-            if (result.State == Microsoft.EntityFrameworkCore.EntityState.Added)
-            {
-                return await _context.SaveChangesAsync() > 0;
-            }
-            return false;
+            var entry = await _context.NotificationLogs.AddAsync(notification);
+            return entry.State == EntityState.Added;
         }
 
 
-        public async Task<IEnumerable<NotificationLog>> GetNotificationLogsAsync(Guid userId, int pageNumber, int pageSize)
+        public Task<IEnumerable<NotificationLog>> GetNotificationLogsAsync(Guid userId, int pageNumber, int pageSize)
         {
             throw new NotImplementedException();
         }

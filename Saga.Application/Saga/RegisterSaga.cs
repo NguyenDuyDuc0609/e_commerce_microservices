@@ -75,6 +75,15 @@ namespace SagaCoordinator.Application.Saga
                         context.Instance.UserId = context.Data.UserId;
                         context.Instance.HashEmail = context.Data.HashEmail;
                     })
+                    .ThenAsync(async context =>
+                    {
+                        await context.Publish(new UpdateStatusSaga(
+                            context.Data.CorrelationId,
+                            TypeSaga.Register,
+                            StatusSaga.Pending,
+                            "User created successfully, sending notification"
+                        ));
+                    })
                     .Send(new Uri("queue:register-sendmail-queue"), context => new NotificationRegisterCommand
                     {
                         CorrelationId = context.Data.CorrelationId,
@@ -137,7 +146,7 @@ namespace SagaCoordinator.Application.Saga
                             context.Data.CorrelationId,
                             TypeSaga.Register,
                             StatusSaga.Failed,
-                            null
+                            "User has been removed"
                         ));
                     })
                     .Finalize()

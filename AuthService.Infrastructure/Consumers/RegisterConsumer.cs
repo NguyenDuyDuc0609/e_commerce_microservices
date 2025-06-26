@@ -1,5 +1,6 @@
 ﻿using AuthService.Application.Features.Users.Commands;
 using AuthService.Application.Features.Users.Dtos;
+using AuthService.Application.Interfaces;
 using MassTransit;
 using MediatR;
 using RegisterConstracts.Commands;
@@ -12,18 +13,14 @@ using System.Threading.Tasks;
 
 namespace AuthService.Infrastructure.Consumers
 {
-    public class RegisterConsumer : IConsumer<RegisterUserCommand>
+    public class RegisterConsumer(IMediator mediator, IPublishEndpoint publishEndpoint, IUnitOfWork unitOfWork) : IConsumer<RegisterUserCommand>
     {
-        private readonly IMediator _mediator;
-        private readonly IPublishEndpoint _publishEndpoint;
-        public RegisterConsumer(IMediator mediator, IPublishEndpoint publishEndpoint)
-        {
-            _mediator = mediator;
-            _publishEndpoint = publishEndpoint;
-        }
+        private readonly IMediator _mediator = mediator;
+        private readonly IPublishEndpoint _publishEndpoint = publishEndpoint;
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
+
         public async Task Consume(ConsumeContext<RegisterUserCommand> context)
         {
-            Console.WriteLine($"[RegisterConsumer] Received RegisterUserCommand with CorrelationId: {context.Message.CorrelationId}");
             var commandRegister = context.Message;
             if (commandRegister != null)
             {
@@ -47,6 +44,8 @@ namespace AuthService.Infrastructure.Consumers
                         PhoneNumber = commandRegister.PhoneNumber,
                         Address = commandRegister.Address
                     });
+                    await _unitOfWork.SaveChangesAsync();
+                    await _unitOfWork.CommitAsync();
                 }
                 else
                 {
@@ -55,6 +54,7 @@ namespace AuthService.Infrastructure.Consumers
                         CorrelationId = context.Message.CorrelationId,
                         Message = result.Message,
                     });
+                    await _unitOfWork.CommitAsync();
                 }
             }
             else
@@ -64,6 +64,7 @@ namespace AuthService.Infrastructure.Consumers
                     CorrelationId = context.Message.CorrelationId,
                     Message = "Invalid Register Command"
                 });
+                await _unitOfWork.CommitAsync();
             }
         }
     }
