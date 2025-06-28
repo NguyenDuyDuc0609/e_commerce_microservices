@@ -11,8 +11,8 @@ using SagaCoordinator.Infrastructure.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 var redisSettings = builder.Configuration.GetSection("Redis");
-string redisHost = redisSettings["Host"];
-int redisPort = int.Parse(redisSettings["Port"]);
+string redisHost = redisSettings["Host"]!;
+int redisPort = int.Parse(redisSettings["Port"]!);
 builder.Services.AddStackExchangeRedisCache(options =>
 {
     options.Configuration = $"{redisHost}:{redisPort}";

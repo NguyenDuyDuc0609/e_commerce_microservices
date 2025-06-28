@@ -1,5 +1,6 @@
 ﻿using Automatonymous;
 using MassTransit;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Query.Expressions.Internal;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,5 +20,6 @@ namespace SagaCoordinator.Domain.Constracts.SagaStates
         public string? HashEmail { get; set; }
         public string? PhoneNumber { get; set; }
         public string? Address { get; set; }
+        public DateTime? ExpireAt { get; set; }
     }
 }

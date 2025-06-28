@@ -22,6 +22,7 @@ namespace SagaCoordinator.Application.Saga
         public Event<UserCreatedEvent> UserCreatedEvent { get; private set; } = null!;
         public Event<NotificationFailed> NotificationFailed { get; private set; } = null!;
         public Event<UserDeletedEvent> UserDeletedEvent { get; private set; } = null!;
+        public Event<TimeoutCheckCommand> TimeoutCheckCommand { get; private set; } = null!;
 
         [Obsolete]
         public RegisterSaga()
@@ -46,6 +47,7 @@ namespace SagaCoordinator.Application.Saga
                         context.Instance.Email = context.Data.Email;
                         context.Instance.PhoneNumber = context.Data.PhoneNumber;
                         context.Instance.Address = context.Data.Address;
+                        context.Instance.ExpireAt = DateTime.UtcNow.AddSeconds(30);
                     })
                     .ThenAsync(async context =>
                     {
@@ -69,6 +71,20 @@ namespace SagaCoordinator.Application.Saga
             );
 
             During(DatabasePending,
+                When(TimeoutCheckCommand)
+                    .If(context => context.Instance.ExpireAt.HasValue &&
+                                   DateTime.UtcNow >= context.Instance.ExpireAt.Value,
+                        binder => binder
+                            .ThenAsync(async context => {
+                                await context.Publish(new UpdateStatusSaga(
+                                    context.Data.CorrelationId,
+                                    TypeSaga.Register,
+                                    StatusSaga.Failed,
+                                    "Auth service down, resgister failed"
+                            ));
+                        })
+                    .Finalize()
+                    ),
                 When(UserCreatedEvent)
                     .Then(context =>
                     {
@@ -108,6 +124,25 @@ namespace SagaCoordinator.Application.Saga
             );
 
             During(NotificationPending,
+                When(TimeoutCheckCommand)
+                    .If(context => context.Instance.ExpireAt.HasValue &&
+                                   DateTime.UtcNow >= context.Instance.ExpireAt.Value,
+                        binder => binder
+                            .ThenAsync(async context => {
+                                await context.Publish(new UpdateStatusSaga(
+                                    context.Data.CorrelationId,
+                                    TypeSaga.Register,
+                                    StatusSaga.Failed,
+                                    "Notification service down, register failed"
+                            ));
+                            })
+                            .Send(new Uri("queue:register-delete-queue"), context => new DeleteRegisterCommand
+                            {
+                                CorrelationId = context.Data.CorrelationId,
+                                UserId = context.Instance.UserId ?? Guid.Empty,
+                            })
+                            .TransitionTo(Rollback)
+                    ),
                 When(NotificationSuccess)
                     .ThenAsync(async context =>
                     {

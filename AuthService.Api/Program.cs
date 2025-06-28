@@ -9,15 +9,19 @@ using AuthService.Infrastructure.Services;
 using MassTransit;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
+using System.Text.Json;
+using RabbitMQ.Client;
 var builder = WebApplication.CreateBuilder(args);
 
 var redisSettings = builder.Configuration.GetSection("Redis");
-string redisHost = redisSettings["Host"];
-int redisPort = int.Parse(redisSettings["Port"]);
+string redisHost = redisSettings["Host"]!;
+int redisPort = int.Parse(redisSettings["Port"]!);
 // Add services to the container.
 var jwtSettings = builder.Configuration.GetSection("Jwt");
 builder.Services.AddControllers();
@@ -35,7 +39,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateIssuerSigningKey = true,
             ValidIssuer = jwtSettings.GetValue<string>("Issuer"),
             ValidAudience = jwtSettings.GetValue<string>("Audience"),
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.GetValue<string>("Key"))),
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.GetValue<string>("Key")!)),
             RoleClaimType = "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
         };
     });
@@ -43,6 +47,22 @@ builder.Services.AddDbContext<AuthDbContext>(options =>
 {
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
+
+
+builder.Services.AddHealthChecks()
+    .AddNpgSql(builder.Configuration.GetConnectionString("DefaultConnection")!, name: "postgresql", failureStatus: HealthStatus.Unhealthy)
+    .AddRedis(builder.Configuration.GetConnectionString("Redis")!, name: "redis", failureStatus: HealthStatus.Unhealthy)
+    .AddRabbitMQ(
+        sp =>
+        {
+            var factory = new ConnectionFactory
+            {
+                Uri = new Uri(builder.Configuration.GetConnectionString("RabbitMQ")!)
+            };
+            return factory.CreateConnectionAsync();
+        },
+        name: "rabbitmq");
+
 builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new OpenApiInfo
@@ -145,6 +165,26 @@ using (var scope = app.Services.CreateScope())
         context.SaveChanges();
     }
 }
+app.MapHealthChecks("/health/system", new HealthCheckOptions
+{
+    ResponseWriter = async (context, report) =>
+    {
+        context.Response.ContentType = "application/json";
+        var result = JsonSerializer.Serialize(new
+        {
+            status = report.Status.ToString(),
+            components = report.Entries.Select(e => new
+            {
+                name = e.Key,
+                status = e.Value.Status.ToString(),
+                error = e.Value.Exception?.Message,
+                duration = e.Value.Duration
+            })
+        });
+        await context.Response.WriteAsync(result);
+    }
+});
+
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
