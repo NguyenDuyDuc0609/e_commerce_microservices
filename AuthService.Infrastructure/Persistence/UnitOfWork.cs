@@ -8,22 +8,16 @@ using System.Threading.Tasks;
 
 namespace AuthService.Infrastructure.Persistence
 {
-    public class UnitOfWork : IUnitOfWork
+    public class UnitOfWork(AuthDbContext context, IUserRepository? userRepository, IRoleRepository? roleRepository, IUserRoleRepository? userRoleRepository, IUserSessionRepository? userSessionRepository) : IUnitOfWork
     {
-        private readonly AuthDbContext _context;
+        private readonly AuthDbContext _context = context;
         private IDbContextTransaction? _transaction;
-        public IUserRepository? UserRepository { get; }
-        public IRoleRepository? RoleRepository { get; }
+        public IUserRepository? UserRepository { get; } = userRepository;
+        public IRoleRepository? RoleRepository { get; } = roleRepository;
+        public IUserSessionRepository? UserSessionRepository { get; } = userSessionRepository;
 
-        public IUserRoleRepository? UserRoleRepository { get; }
+        public IUserRoleRepository? UserRoleRepository { get; } = userRoleRepository;
 
-        public UnitOfWork(AuthDbContext context, IUserRepository? userRepository, IRoleRepository? roleRepository, IUserRoleRepository? userRoleRepository)
-        {
-            _context = context;
-            UserRepository = userRepository;
-            RoleRepository = roleRepository;
-            UserRoleRepository = userRoleRepository;
-        }
         public void BeginTransaction()
         {
             _transaction = _context.Database.BeginTransaction();

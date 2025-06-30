@@ -1,4 +1,5 @@
 ﻿using AuthService.Application.Interfaces;
+using AuthService.Domain.Entities;
 using AuthService.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -9,13 +10,10 @@ using System.Threading.Tasks;
 
 namespace AuthService.Infrastructure.Repositories
 {
-    public class UserSessionRepository : IUserSessionRepository
+    public class UserSessionRepository(AuthDbContext context) : IUserSessionRepository
     {
-        private readonly AuthDbContext _context;
-        public UserSessionRepository(AuthDbContext context)
-        {
-            _context = context;
-        }
+        private readonly AuthDbContext _context = context;
+
         public async Task<bool> DeleteDevice(string deviceInfor, string ipAddress)
         {
             var result = await _context.UserSessions
@@ -62,9 +60,11 @@ namespace AuthService.Infrastructure.Repositories
             throw new NotImplementedException();
         }
 
-        public Task<string> NewLoginDevice(Guid userId, string deviceInfor, string ipAddress)
+        public async Task<bool> NewLoginDevice(Guid userId, string token, string deviceInfor, string ipAddress)
         {
-            throw new NotImplementedException();
+            var session = new UserSession(userId, deviceInfor, ipAddress, token);
+            var result = await _context.UserSessions.AddAsync(session);
+            return result.State == EntityState.Added;
         }
     }
 }

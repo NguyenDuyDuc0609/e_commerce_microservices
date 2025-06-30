@@ -19,11 +19,12 @@ namespace AuthService.Api.Controllers
         public AuthController(IMediator mediator) {
             _mediator = mediator;
         }
-        [HttpPost("Login")]
+        [HttpPost("login")]
         [AllowAnonymous]
-        public IActionResult Login()
+        public async Task<IActionResult> Login([FromBody] LoginUserCommand loginUserCommand)
         {
-            return Ok("Login success");
+            var result = await _mediator.Send(loginUserCommand);
+            return Ok(result);
         }
     }
 }

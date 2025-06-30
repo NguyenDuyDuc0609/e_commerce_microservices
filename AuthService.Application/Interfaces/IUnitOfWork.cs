@@ -11,6 +11,7 @@ namespace AuthService.Application.Interfaces
         IUserRepository? UserRepository { get; }
         IRoleRepository? RoleRepository { get; }
         IUserRoleRepository? UserRoleRepository { get; }
+        IUserSessionRepository? UserSessionRepository { get; }
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
         Task CommitAsync();
         void BeginTransaction();

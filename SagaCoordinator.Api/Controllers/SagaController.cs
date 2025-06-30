@@ -11,13 +11,10 @@ namespace SagaCoordinator.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class SagaController : ControllerBase
+    public class SagaController(IMediator mediator) : ControllerBase
     {
-        private IMediator _mediator;
-        public SagaController(IMediator mediator)
-        {
-            _mediator = mediator;
-        }
+        private readonly IMediator _mediator = mediator;
+
         [HttpGet("status")]
         public IActionResult GetStatus()
         {

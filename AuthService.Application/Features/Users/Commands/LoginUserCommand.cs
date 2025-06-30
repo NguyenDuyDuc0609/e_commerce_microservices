@@ -8,5 +8,5 @@ using System.Threading.Tasks;
 
 namespace AuthService.Application.Features.Users.Commands
 {
-    public record LoginUserCommand(string Username, string Password) : IRequest<UserDto>;
+    public record LoginUserCommand(string Username, string Password, string DeviceInfor, string IpAddress) : IRequest<UserDto>;
 }

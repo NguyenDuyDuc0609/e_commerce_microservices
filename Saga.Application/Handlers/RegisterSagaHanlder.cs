@@ -32,13 +32,12 @@ namespace SagaCoordinator.Application.Handlers
                     request.PhoneNumber,
                     request.Address
                 );
-                await _unitOfWork.SagaRedis.SetSagaRedis(command.CorrelationId, command);
-                await _unitOfWork.SagaRepository.AddNewSaga(command.CorrelationId, TypeSaga.Register, "Register processing");
+                await _unitOfWork.SagaRedis!.SetSagaRedis(command.CorrelationId, command);
+                await _unitOfWork.SagaRepository!.AddNewSaga(command.CorrelationId, TypeSaga.Register, "Register processing");
 
                 await _publishEndpoint.Publish(command, cancellationToken);
 
                 await _unitOfWork.SaveChangesAsync(cancellationToken); 
-
                 return new ModelResult
                 {
                     Message = "User registration is processing",

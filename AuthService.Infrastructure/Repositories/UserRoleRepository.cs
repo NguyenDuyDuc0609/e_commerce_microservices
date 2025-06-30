@@ -10,13 +10,10 @@ using System.Threading.Tasks;
 
 namespace AuthService.Infrastructure.Repositories
 {
-    public class UserRoleRepository : IUserRoleRepository
+    public class UserRoleRepository(AuthDbContext context) : IUserRoleRepository
     {
-        private readonly AuthDbContext _context;
-        public UserRoleRepository(AuthDbContext context)
-        {
-            _context = context;
-        }
+        private readonly AuthDbContext _context = context;
+
         public async Task<bool> AddUserRoleAsync(Guid userId, Guid roleId)
         {
             var UserRole = new UserRole(userId, roleId);

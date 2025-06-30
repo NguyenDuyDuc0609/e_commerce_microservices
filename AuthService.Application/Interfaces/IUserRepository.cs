@@ -12,5 +12,6 @@ namespace AuthService.Application.Interfaces
         public Task<bool> UserExistsAsync(string username, string email);
         Task<bool> AddUserAsync(User user);
         Task<User> GetUserByEmailAsync(string email);
+        Task<(User? user, string? message)> VerifyLogin(string username, string password);
     }
 }

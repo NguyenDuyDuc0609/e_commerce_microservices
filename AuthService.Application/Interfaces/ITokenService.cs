@@ -10,7 +10,7 @@ namespace AuthService.Application.Interfaces
 {
     public interface ITokenService
     {
-        public string GenerateJWT(User user);
+        public string GenerateJWT(User user, string role);
         public string GenerateRefreshToken();
         public ClaimsPrincipal? GetClaimsPrincipalToken(string? token);
     }

@@ -10,7 +10,8 @@
         }
       ],
       "UpstreamPathTemplate": "/api/auth/login",
-      "UpstreamHttpMethod": [ "POST" ]
+      "UpstreamHttpMethod": [ "POST" ],
+      "SwaggerKey": "Auth"
     },
     {
       "DownstreamPathTemplate": "/api/Saga/register-saga",
@@ -22,7 +23,21 @@
         }
       ],
       "UpstreamPathTemplate": "/api/Saga/register-saga",
-      "UpstreamHttpMethod": [ "POST" ]
+      "UpstreamHttpMethod": [ "POST" ],
+      "SwaggerKey": "Saga"
+    },
+    {
+      "DownstreamPathTemplate": "/api/Saga/status",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7151
+        }
+      ],
+      "UpstreamPathTemplate": "/api/Saga/status",
+      "UpstreamHttpMethod": [ "GET" ],
+      "SwaggerKey": "Saga"
     },
     {
       "DownstreamPathTemplate": "/swagger/v1/swagger.json",
@@ -59,18 +74,6 @@
       ],
       "UpstreamPathTemplate": "/saga/swagger/v1/swagger.json",
       "UpstreamHttpMethod": [ "GET" ]
-    },
-    {
-      "DownstreamPathTemplate": "/swagger/v1/swagger.json",
-      "DownstreamScheme": "https",
-      "DownstreamHostAndPorts": [
-        {
-          "Host": "localhost",
-          "Port": 7230
-        }
-      ],
-      "UpstreamPathTemplate": "/acceptor/swagger/v1/swagger.json",
-      "UpstreamHttpMethod": [ "GET" ]
     }
   ],
   "SwaggerEndPoints": [
@@ -103,19 +106,9 @@
           "Url": "https://localhost:7151/swagger/v1/swagger.json"
         }
       ]
-    },
-    {
-      "Key": "Acceptor",
-      "Config": [
-        {
-          "Name": "Acceptor Service",
-          "Version": "v1",
-          "Url": "https://localhost:7230/swagger/v1/swagger.json"
-        }
-      ]
     }
   ],
   "GlobalConfiguration": {
-    "BaseUrl": "https://localhost:7075"
+    "BaseUrl": "https://localhost:7171"
   }
 }

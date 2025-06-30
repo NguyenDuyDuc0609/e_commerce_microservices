@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-
+using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 namespace AuthService.Domain.Entities
 {
     public class User
@@ -17,6 +18,7 @@ namespace AuthService.Domain.Entities
         public string PasswordHash { get; private set; }
         public string? HashEmailVerification { get; private set; }
         public string PhoneNumber { get; private set; }
+        public string Salt { get; private set; } 
         public string Address { get; private set; }
         public bool IsActive { get; private set; }
         public DateTimeOffset CreatedDate { get; set; }
@@ -37,10 +39,10 @@ namespace AuthService.Domain.Entities
             UserId = Guid.NewGuid();
             Username = username;
             Email = email;
-            PasswordHash = EncryptMd5(passwordHash);
+            SetPasswordHash(passwordHash);
             PhoneNumber = phoneNumber;
             Address = address;
-            HashEmailVerification = EncryptMd5(email);
+            HashEmailVerification = HashEmail(email);
             IsActive = false;
             CreatedDate = DateTimeOffset.UtcNow;
             ModifiedDate = DateTimeOffset.UtcNow;
@@ -58,10 +60,24 @@ namespace AuthService.Domain.Entities
             IsActive = false;
             ModifiedDate = DateTimeOffset.UtcNow;
         }
-        public void SetPasswordHash(string passwordHash)
+        private static string HashPasswordWithSalt(string password, string base64Salt)
         {
-            PasswordHash = EncryptMd5(passwordHash);
-            ModifiedDate = DateTimeOffset.UtcNow;
+            byte[] saltBytes = Convert.FromBase64String(base64Salt);
+
+            byte[] hashBytes = KeyDerivation.Pbkdf2(
+                password: password,
+                salt: saltBytes,
+                prf: KeyDerivationPrf.HMACSHA256,
+                iterationCount: 10000,
+                numBytesRequested: 32
+            );
+
+            return Convert.ToBase64String(hashBytes);
+        }
+        private void SetPasswordHash(string passwordHash)
+        {
+            Salt = GenerateSalt();
+            PasswordHash = HashPasswordWithSalt(passwordHash, Salt);
         }
         public void SetEmail(string email)
         {
@@ -80,13 +96,22 @@ namespace AuthService.Domain.Entities
             UserRoles.Add(new UserRole(UserId, roleId));
         }
 
-        private static string EncryptMd5(string password)
+        private static string GenerateSalt(int size = 16)
         {
-            MD5 mD5 = MD5.Create();
-            byte[] input = Encoding.UTF8.GetBytes(password);
-            byte[] output = mD5.ComputeHash(input);
-            string passwordHashed = BitConverter.ToString(output).Replace("-", string.Empty);
-            return passwordHashed;
+            byte[] saltBytes = RandomNumberGenerator.GetBytes(size); 
+            return Convert.ToBase64String(saltBytes);
+        }
+        private static string HashEmail(string email)
+        {
+            using var sha256 = SHA256.Create();
+            var bytes = Encoding.UTF8.GetBytes(email);
+            var hashEmail = sha256.ComputeHash(bytes);
+            var builder = new StringBuilder();
+            foreach (var item in hashEmail)
+            {
+                builder.Append(item.ToString("x2"));
+            }
+            return builder.ToString();
         }
         public void SetPhoneNumber(string phoneNumber)
         {
@@ -97,6 +122,11 @@ namespace AuthService.Domain.Entities
         {
             Address = address;
             ModifiedDate = DateTimeOffset.UtcNow;
+        }
+        public bool VerifyPassword(string password)
+        {
+            string inputPassword = HashPasswordWithSalt(password, Salt);
+            return PasswordHash == inputPassword;
         }
     }
 }

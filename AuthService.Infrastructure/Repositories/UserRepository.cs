@@ -69,7 +69,6 @@ namespace AuthService.Infrastructure.Repositories
                 .FirstOrDefaultAsync();
             return user ?? throw new KeyNotFoundException("User not found with the provided email.");
         }
-
         public async Task<bool> UpdateAsync(User entity)
         {
             var user = await _auth.Users
@@ -89,6 +88,21 @@ namespace AuthService.Infrastructure.Repositories
                 .Where(u => (u.Username == username || u.Email == email) && u.IsActive)
                 .FirstOrDefaultAsync();
             return user != null;
+        }
+
+        public async Task<(User? user, string? message)> VerifyLogin(string username, string password)
+        {
+            var user = await _auth.Users.Where(u => u.Username == username)
+                .Include(u => u.UserRoles)
+                .ThenInclude(u => u.Role)
+                .FirstOrDefaultAsync();
+            if (user == null)
+                return (null, "User not found.");
+            if (!user.IsActive)
+                return (null, "User is not active. Please activate your account.");
+            if(user.VerifyPassword(password))
+                return (user, "Login succes");
+            return (null, "Invalid username or password.");
         }
     }
 }
