@@ -26,5 +26,12 @@ namespace AuthService.Api.Controllers
             var result = await _mediator.Send(loginUserCommand);
             return Ok(result);
         }
+        [HttpPost("refresh-token")]
+        [AllowAnonymous]
+        public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenCommand refreshTokenCommand)
+        {
+            var result = await _mediator.Send(refreshTokenCommand);
+            return Ok(result);
+        }
     }
 }

@@ -33,6 +33,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Features\HanlderQueries\" />
     <Folder Include="Features\Users\Queries\" />
   </ItemGroup>
 
