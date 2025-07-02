@@ -9,5 +9,5 @@ using System.Threading.Tasks;
 
 namespace AuthService.Application.Features.Users.Commands
 {
-    public record RefreshTokenCommand(string Token, string RefreshToken) : IRequest<UserDto>;
+    public record RefreshTokenCommand(string? Token, string RefreshToken) : IRequest<UserDto>;
 }

@@ -1,6 +1,7 @@
 ﻿using AuthService.Application.Features.Users.Commands;
 using AuthService.Application.Features.Users.Dtos;
 using AuthService.Application.Interfaces;
+using MassTransit;
 using MassTransit.NewIdProviders;
 using MediatR;
 using System;
@@ -11,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace AuthService.Application.Features.Handler
 {
-    public class LoginUserHandler(IUnitOfWork unitOfWork, ITokenService tokenService) : IRequestHandler<LoginUserCommand, UserDto>
+    public class LoginUserHandler(IUnitOfWork unitOfWork, ITokenService tokenService, IPublishEndpoint publishEndpoint) : IRequestHandler<LoginUserCommand, UserDto>
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
         private readonly ITokenService _tokenService = tokenService;
@@ -32,10 +33,15 @@ namespace AuthService.Application.Features.Handler
 
                 var token = _tokenService.GenerateJWT(user.user, roleName);
                 var refreshtoken = _tokenService.GenerateRefreshToken();
-
+                
                 var result = await _unitOfWork.UserSessionRepository!.NewLoginDevice(user.user.UserId, request.DeviceInfor, request.IpAddress, refreshtoken);
 
                 if(!result) return new UserDto { IsSuccess = false, Message = "Failed to create new session for user." };
+                await publishEndpoint.Publish(new UpdateCache
+                {
+                    UserId = user.user.UserId,
+                    RefreshToken = refreshtoken
+                }, cancellationToken);
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
                 return new UserDto
                 {

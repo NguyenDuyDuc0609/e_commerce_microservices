@@ -17,8 +17,13 @@ namespace AuthService.Infrastructure.Persistence.Cache
         }
         public async Task<T?> GetTokenAsync<T>(string key)
         {
-            string? jsonToken = await _cache.GetStringAsync(key);
-            return jsonToken is null ? default : JsonSerializer.Deserialize<T>(jsonToken);
+            var jsonToken = await _cache.GetStringAsync(key);
+            if (jsonToken is null) return default;
+
+            if (typeof(T) == typeof(string))
+                return (T)(object)jsonToken;
+
+            return JsonSerializer.Deserialize<T>(jsonToken);
         }
 
         public async Task RemoveTokenAsync(string key)
@@ -32,7 +37,7 @@ namespace AuthService.Infrastructure.Persistence.Cache
             {
                 AbsoluteExpirationRelativeToNow = expiration ?? TimeSpan.FromDays(7)
             };
-            string jsonToken = JsonSerializer.Serialize(token);
+            string jsonToken = token is string str ? str : JsonSerializer.Serialize(token);
             await _cache.SetStringAsync(key, jsonToken, cacheOptions);
         }
     }
