@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.WebSockets;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
@@ -25,6 +26,21 @@ namespace AuthService.Infrastructure.Repositories
         {
             var entry = await _auth.Users.AddAsync(user);
             return entry.State == EntityState.Added;
+        }
+
+        public async Task<(bool? isSuccess, string? message)> ChangePassword(Guid userId, string oldPassword, string newPassword)
+        {
+            var user = await _auth.Users.Where(u => u.UserId == userId && u.IsActive)
+                .FirstOrDefaultAsync();
+            if (user == null)
+                return (false, "User not found or inactive.");
+            var result = user.ChangePassword(oldPassword, newPassword);
+            if (result)
+            {
+                _auth.Update(user);
+                return (true, "Password changed successfully.");
+            }
+            return (false, "Old password is incorrect.");
         }
 
         public async Task<bool> DeleteAsync(Guid id)
@@ -69,6 +85,29 @@ namespace AuthService.Infrastructure.Repositories
                 .FirstOrDefaultAsync();
             return user ?? throw new KeyNotFoundException("User not found with the provided email.");
         }
+
+        public async Task<(bool? isSucces, string? message)> ResetPassword(string token, string newPassword)
+        {
+            var passwordResetToken = await _auth.PasswordResetTokens.Where(t => t.Token == token)
+                .Include(t => t.User)
+                .FirstOrDefaultAsync();
+            if(passwordResetToken == null) return (false, "Token not found");
+            if (passwordResetToken.ExpiresAt < DateTimeOffset.UtcNow)
+            {
+                passwordResetToken.MarkAsExpired();
+                passwordResetToken.MarkAsDeleted();
+                _auth.PasswordResetTokens.Update(passwordResetToken);
+                return (false, "Token is expired.");
+            }
+            if(passwordResetToken.User == null) return (false, "User not found for the provided token.");
+            passwordResetToken.User.SetPasswordHash(newPassword);
+            passwordResetToken.MarkAsExpired();
+            passwordResetToken.MarkAsDeleted();
+            _auth.PasswordResetTokens.Update(passwordResetToken);
+            return (true, "Password reset successfully.");
+
+        }
+
         public async Task<bool> UpdateAsync(User entity)
         {
             var user = await _auth.Users
@@ -90,6 +129,17 @@ namespace AuthService.Infrastructure.Repositories
             return user != null;
         }
 
+        public async Task<bool> VerifyEmail(string email)
+        {
+            var user = await _auth.Users.Where(e => e.HashEmailVerification == email)
+                .FirstOrDefaultAsync();
+            if (user == null)
+                return false;
+            user.Activate();
+            _auth.Users.Update(user);
+            return true;
+        }
+
         public async Task<(User? user, string? message)> VerifyLogin(string username, string password)
         {
             var user = await _auth.Users.Where(u => u.Username == username)
@@ -104,5 +154,6 @@ namespace AuthService.Infrastructure.Repositories
                 return (user, "Login succes");
             return (null, "Invalid username or password.");
         }
+
     }
 }

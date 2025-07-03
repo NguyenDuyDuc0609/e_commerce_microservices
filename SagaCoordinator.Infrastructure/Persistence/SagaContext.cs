@@ -11,15 +11,14 @@ using System.Threading.Tasks;
 
 namespace SagaCoordinator.Infrastructure.Persistence
 {
-    public class SagaContext : DbContext
+    public class SagaContext(DbContextOptions<SagaContext> options) : DbContext(options)
     {
         public DbSet<SagaStatus> SagaStatuses { get; set; }
         public DbSet<RegisterSagaState> RegisterSagaStates { get; set; }
+        public DbSet<ForgotPasswordSagaState> ForgotPasswordSagaStates { get; set; }
         public DbSet<OutboxState> OutboxStates { get; set; }
         public DbSet<OutboxMessage> OutboxMessages { get; set; }
-        public SagaContext(DbContextOptions<SagaContext> options) : base(options)
-        {
-        }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -29,6 +28,8 @@ namespace SagaCoordinator.Infrastructure.Persistence
             modelBuilder.Entity<SagaStatus>()
                 .HasKey(s => s.CorrelationId);
             modelBuilder.Entity<RegisterSagaState>()
+                .HasKey(s => s.CorrelationId);
+            modelBuilder.Entity<ForgotPasswordSagaState>()
                 .HasKey(s => s.CorrelationId);
         }
     }

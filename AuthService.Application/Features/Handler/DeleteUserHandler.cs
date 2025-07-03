@@ -18,7 +18,7 @@ namespace AuthService.Application.Features.Handler
         {
             try
             {
-                var result = await _unitOfWork.UserRepository.DeleteAsync(request.UserId);
+                var result = await _unitOfWork.UserRepository!.DeleteAsync(request.UserId);
                 if(!result)
                 {
                     return new UserDto

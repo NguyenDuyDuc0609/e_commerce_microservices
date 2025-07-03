@@ -33,7 +33,6 @@ namespace AuthService.Infrastructure.Consumers
                         CorrelationId = context.Message.CorrelationId
                     });
                     await _unitOfWork.SaveChangesAsync();
-                    await _unitOfWork.CommitAsync();
                 }
             }
         }

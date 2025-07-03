@@ -14,9 +14,19 @@ namespace AuthService.Application.Features.Handler
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
-        public Task<UserDto> Handle(VerifyAccountCommand request, CancellationToken cancellationToken)
+        public async Task<UserDto> Handle(VerifyAccountCommand request, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            if(request.HashEmail == null || request.HashEmail == string.Empty)
+                return new UserDto { IsSuccess = false, Message = "Email verification hash cannot be null or empty." };
+
+            var result = _unitOfWork.UserRepository!.VerifyEmail(request.HashEmail);
+            if (result.Result)
+            {
+                await _unitOfWork.SaveChangesAsync(cancellationToken);
+                return (new UserDto { IsSuccess = true, Message = "Email verified successfully." });
+            }
+            else
+                return new UserDto { IsSuccess = false, Message = "Email verification failed." };
         }
     }
 }

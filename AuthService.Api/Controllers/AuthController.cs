@@ -33,5 +33,13 @@ namespace AuthService.Api.Controllers
             var result = await _mediator.Send(refreshTokenCommand);
             return Ok(result);
         }
+        [HttpPost("verify-account/{token}")]
+        [AllowAnonymous]
+        public async Task<IActionResult> VerifyAccount(string token)
+        {
+            var email = new VerifyAccountCommand(token);
+            var result = await _mediator.Send(email);
+            return Ok(result);
+        }
     }
 }

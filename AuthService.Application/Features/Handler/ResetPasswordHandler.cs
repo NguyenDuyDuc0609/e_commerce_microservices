@@ -14,9 +14,34 @@ namespace AuthService.Application.Features.Handler
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
-        public Task<UserDto> Handle(ResetPasswordCommand request, CancellationToken cancellationToken)
+        public async Task<UserDto> Handle(ResetPasswordCommand request, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var (isSucces, message) = await _unitOfWork.UserRepository!.ResetPassword(request.Token, request.NewPassword);
+                if (isSucces == false)
+                {
+                    return new UserDto
+                    {
+                        IsSuccess = false,
+                        Message = message
+                    };
+                }
+                await _unitOfWork.SaveChangesAsync(cancellationToken);
+                return new UserDto
+                {
+                    IsSuccess = true,
+                    Message = "Password reset successfully."
+                };
+            }
+            catch (Exception ex)
+            {
+                return new UserDto
+                {
+                    IsSuccess = false,
+                    Message = ex.Message
+                };
+            }
         }
     }
 }

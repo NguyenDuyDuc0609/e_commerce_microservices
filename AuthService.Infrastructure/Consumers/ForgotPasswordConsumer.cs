@@ -4,11 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SagaCoordinator.Domain.Enums
+namespace AuthService.Infrastructure.Consumers
 {
-    public enum TypeSaga
+    internal class ForgotPasswordConsumer
     {
-        Register,
-        ForgotPassword,
     }
 }

@@ -13,5 +13,8 @@ namespace AuthService.Application.Interfaces
         Task<bool> AddUserAsync(User user);
         Task<User> GetUserByEmailAsync(string email);
         Task<(User? user, string? message)> VerifyLogin(string username, string password);
+        Task<bool> VerifyEmail(string email);
+        Task<(bool? isSuccess, string? message)> ChangePassword(Guid userId, string oldPassword, string newPassword);
+        Task<(bool? isSucces, string? message)> ResetPassword(string token, string newPassword);
     }
 }

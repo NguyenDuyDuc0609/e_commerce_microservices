@@ -45,7 +45,6 @@ namespace AuthService.Infrastructure.Consumers
                         Address = commandRegister.Address
                     });
                     await _unitOfWork.SaveChangesAsync();
-                    await _unitOfWork.CommitAsync();
                 }
                 else
                 {
@@ -54,7 +53,7 @@ namespace AuthService.Infrastructure.Consumers
                         CorrelationId = context.Message.CorrelationId,
                         Message = result.Message,
                     });
-                    await _unitOfWork.CommitAsync();
+                    await _unitOfWork.SaveChangesAsync();
                 }
             }
             else
@@ -64,7 +63,7 @@ namespace AuthService.Infrastructure.Consumers
                     CorrelationId = context.Message.CorrelationId,
                     Message = "Invalid Register Command"
                 });
-                await _unitOfWork.CommitAsync();
+                await _unitOfWork.SaveChangesAsync();
             }
         }
     }

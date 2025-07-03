@@ -74,7 +74,7 @@ namespace AuthService.Domain.Entities
 
             return Convert.ToBase64String(hashBytes);
         }
-        private void SetPasswordHash(string passwordHash)
+        public void SetPasswordHash(string passwordHash)
         {
             Salt = GenerateSalt();
             PasswordHash = HashPasswordWithSalt(passwordHash, Salt);
@@ -127,6 +127,12 @@ namespace AuthService.Domain.Entities
         {
             string inputPassword = HashPasswordWithSalt(password, Salt);
             return PasswordHash == inputPassword;
+        }
+        public bool ChangePassword(string oldPassword, string newPassword)
+        {
+            if (!VerifyPassword(oldPassword)) return false;
+            SetPasswordHash(newPassword);
+            return true;
         }
     }
 }

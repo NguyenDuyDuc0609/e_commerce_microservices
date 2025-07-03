@@ -11,13 +11,11 @@ using System.Threading.Tasks;
 
 namespace SagaCoordinator.Infrastructure.Repositories
 {
-    public class SagaRepository : ISagaRepository
+    public class SagaRepository(SagaContext context) : ISagaRepository
     {
-        private readonly SagaContext _context;
-        public SagaRepository(SagaContext context)
-        {
-            _context = context;
-        }
+        private readonly SagaContext _context = context;
+
+
         public async Task<object> AddNewSaga(Guid correlationId, TypeSaga typeSaga, string? message)
         {
             var saga = new SagaStatus(correlationId, typeSaga, StatusSaga.Pending, message);

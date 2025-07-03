@@ -23,7 +23,7 @@ namespace AuthService.Application.Features.Handler
             var principal = _tokenService.GetClaimsPrincipalToken(request.Token);
             if(principal?.Identity?.Name is  null) return new UserDto { IsSuccess = false, Message = "Invalid token." };
             var userIdClaim = principal?.FindFirst(ClaimTypes.NameIdentifier);
-            if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out var userId)) return new UserDto { IsSuccess = false, Message = "Invalid user ID in token." };
+            if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out Guid userId)) return new UserDto { IsSuccess = false, Message = "Invalid user ID in token." };
             var refreshToken = await _authRedisCacheService.GetTokenAsync<string>(userId.ToString());
             if (refreshToken == null) return new UserDto { IsSuccess = false, Message = "Refresh token is expired, please login again" };
             if (refreshToken != request.RefreshToken) return new UserDto { IsSuccess = false, Message = "Invalid refresh token." };
