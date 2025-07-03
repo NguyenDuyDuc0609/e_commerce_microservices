@@ -10,13 +10,37 @@ using System.Threading.Tasks;
 
 namespace AuthService.Application.Features.Handler
 {
-    public class ForgotPasswordHandler(IUnitOfWork unitOfWork) : IRequestHandler<ForgotPasswordCommand, UserDto>
+    public class ForgotPasswordHandler(IUnitOfWork unitOfWork) : IRequestHandler<PasswordForgotCommand, UserDto>
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
-        public Task<UserDto> Handle(ForgotPasswordCommand request, CancellationToken cancellationToken)
+        public async Task<UserDto> Handle(PasswordForgotCommand request, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var (isSuccess, message) = await _unitOfWork.UserRepository!.CreateToken(request.Email);
+                if (!isSuccess)
+                {
+                    return new UserDto
+                    {
+                        IsSuccess = false,
+                        Message = message ?? "Failed to create token for password reset."
+                    };
+                }
+                return new UserDto
+                {
+                    IsSuccess = true,
+                    Message = message
+                };
+            }
+            catch (Exception ex)
+            {
+                return new UserDto
+                {
+                    IsSuccess = false,
+                    Message = ex.Message
+                };
+            }
         }
     }
 }

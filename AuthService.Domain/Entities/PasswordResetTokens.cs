@@ -18,12 +18,12 @@ namespace AuthService.Domain.Entities
         public PasswordResetTokens()
         {
         }
-        public PasswordResetTokens(Guid userId, string token, DateTimeOffset expiresAt)
+        public PasswordResetTokens(Guid userId)
         {
             UserId = userId;
-            Token = token;
+            Token = CreateToken();
             CreatedAt = DateTimeOffset.UtcNow;
-            ExpiresAt = expiresAt;
+            ExpiresAt = DateTimeOffset.UtcNow.AddHours(12);
             IsExpired = false;
             IsDelete = false;
         }
@@ -34,6 +34,21 @@ namespace AuthService.Domain.Entities
         public void MarkAsDeleted()
         {
             IsDelete = true;
+        }
+        private static string CreateToken()
+        {
+            var token = "";
+            int randomValue;
+            char randomChar;
+            Random random = new();
+            int tokenLength = random.Next(5, 10);
+            for(int i = 0; i < tokenLength; i++)
+            {
+                randomValue = random.Next(0, 26);
+                randomChar = Convert.ToChar(randomValue + 65);
+                token += randomChar;
+            }
+            return token;
         }
     }
 }

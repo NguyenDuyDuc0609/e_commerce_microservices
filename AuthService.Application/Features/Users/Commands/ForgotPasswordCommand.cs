@@ -8,5 +8,5 @@ using System.Threading.Tasks;
 
 namespace AuthService.Application.Features.Users.Commands
 {
-    public record ForgotPasswordCommand(string Email) : IRequest<UserDto>;
+    public record PasswordForgotCommand(string Email) : IRequest<UserDto>;
 }

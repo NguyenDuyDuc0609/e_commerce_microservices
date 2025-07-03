@@ -43,6 +43,21 @@ namespace AuthService.Infrastructure.Repositories
             return (false, "Old password is incorrect.");
         }
 
+        public async Task<(bool isSucess, string token)> CreateToken(string email)
+        {
+            var user = await _auth.Users
+                .Where(u => u.Email == email && u.IsActive)
+                .FirstOrDefaultAsync();
+            if (user == null) return (false, "User not found or inactive.");
+            var token = new PasswordResetTokens
+            {
+                UserId = user.UserId,
+            };
+            await _auth.PasswordResetTokens.AddAsync(token);
+            return (true, token.Token);
+
+        }
+
         public async Task<bool> DeleteAsync(Guid id)
         {
             var user = await _auth.Users.FirstOrDefaultAsync(u => u.UserId == id);
