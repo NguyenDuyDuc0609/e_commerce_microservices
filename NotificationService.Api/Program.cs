@@ -10,6 +10,7 @@ using MediatR;
 using NotificationService.Application.Features.Handler;
 using NotificationService.Infrastructure.EmailStrategy;
 using Org.BouncyCastle.Asn1.X509.Qualified;
+using NotificationService.Infrastructure.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 
@@ -33,6 +34,7 @@ builder.Services.AddDbContext<NotificationContext>(options =>
 builder.Services.AddMassTransit(x =>
 {
     x.AddConsumer<NotificationConsumer>();
+    x.AddConsumer<SendMailForgotPasswordConsumer>();
     x.AddEntityFrameworkOutbox<NotificationContext>(cfg =>
     {
         cfg.QueryDelay = TimeSpan.FromSeconds(30);
@@ -52,6 +54,10 @@ builder.Services.AddMassTransit(x =>
         {
             e.ConfigureConsumer<NotificationConsumer>(context);
         });
+        cfg.ReceiveEndpoint("send-token-queue", e =>
+        {
+            e.ConfigureConsumer<SendMailForgotPasswordConsumer>(context);
+        });
     });
 });
 builder.Services.AddMediatR(cfg =>
@@ -61,10 +67,16 @@ builder.Services.AddMediatR(cfg =>
         typeof(NotificationSendMailHandler).Assembly
     );
 });
-builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
+
+builder.Services.AddScoped<RegisterSendMail>();
+builder.Services.AddScoped<ForgotPasswordSendMail>();
+
 builder.Services.AddScoped<IEmailSender, EmailSender>();
+
+builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-builder.Services.AddScoped<INotificationStrategy, RegisterSendMail>();
+
+builder.Services.AddScoped<INotificationStrategySelector, NotificationStrategySelector>();
 
 
 var app = builder.Build();

@@ -43,7 +43,7 @@ namespace NotificationService.Infrastructure.Consumers
                     CorrelationId = context.Message.CorrelationId,
                     Message = result.Message,
                 });
-                await _unitOfWork.CommitAsync();
+                await _unitOfWork.SaveChangesAsync();
             }
             else
             {
@@ -53,7 +53,7 @@ namespace NotificationService.Infrastructure.Consumers
                     Message = result.Message,
                     UserId = context.Message.UserId
                 });
-                await _unitOfWork.CommitAsync();
+                await _unitOfWork.SaveChangesAsync();
             }
         }
     }

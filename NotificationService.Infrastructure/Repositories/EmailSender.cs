@@ -17,7 +17,7 @@ namespace NotificationService.Infrastructure.Repositories
     {
         private readonly IConfiguration _configuration = configuration;
 
-        public async Task<(bool isSuccess, string message)> SendEmailAsync(string to, string subject, string hashEmail)
+        public async Task<(bool isSuccess, string message)> SendEmailAsync(string to, string subject, string body)
         {
             try
             {
@@ -25,13 +25,12 @@ namespace NotificationService.Infrastructure.Repositories
                 message.From.Add(MailboxAddress.Parse(_configuration["EmailConfig:Email"]));
                 message.To.Add(MailboxAddress.Parse(to));
                 message.Subject = subject;
-                var activationLink = $"https://localhost:7075/api/Auth/verify/{hashEmail}";
                 message.Body = new TextPart(TextFormat.Html)
                 {
-                    Text = $"Please click the link to activate your account: <a href='{activationLink}'>Activate Account</a>"
+                    Text = body
                 };
                 using var smtp = new SmtpClient();
-                smtp.Connect(_configuration["EmailConfig:smtp"], int.Parse(_configuration["EmailConfig:SmtpPort"]), SecureSocketOptions.StartTls);
+                smtp.Connect(_configuration["EmailConfig:smtp"], int.Parse(_configuration["EmailConfig:SmtpPort"]!), SecureSocketOptions.StartTls);
                 smtp.Authenticate(_configuration["EmailConfig:Email"], _configuration["EmailConfig:EmailPassword"]);
                 smtp.Send(message);
                 smtp.Disconnect(true);

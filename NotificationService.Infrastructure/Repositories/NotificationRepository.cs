@@ -15,13 +15,13 @@ namespace NotificationService.Infrastructure.Repositories
     {
         private readonly NotificationContext _context = context;
 
-        public async Task<bool> AddNotificationAsync(Guid userId, string recipient, string subject, string body, NotificationType type)
+        public async Task<bool> AddNotificationAsync(Guid? userId, string recipient, string subject, string body, NotificationType type)
         {
-            var notification = new NotificationLog(userId, recipient, subject, body, type);
+            if (userId is null) return false;
+            var notification = new NotificationLog(userId.Value, recipient, subject, body, type);
             var entry = await _context.NotificationLogs.AddAsync(notification);
             return entry.State == EntityState.Added;
         }
-
 
         public Task<IEnumerable<NotificationLog>> GetNotificationLogsAsync(Guid userId, int pageNumber, int pageSize)
         {

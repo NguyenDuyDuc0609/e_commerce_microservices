@@ -9,13 +9,11 @@ using System.Threading.Tasks;
 
 namespace NotificationService.Infrastructure.Persistence
 {
-    public class UnitOfWork(NotificationContext context, INotificationRepository notificationRepository, INotificationStrategy notificationStrategy) : IUnitOfWork
-    {
+    public class UnitOfWork(NotificationContext context, INotificationRepository? notificationRepository) : IUnitOfWork
+    { 
         private readonly NotificationContext _context = context;
         private IDbContextTransaction? _transaction;
-        public INotificationRepository NotificationRepository { get; } = notificationRepository;
-
-        public INotificationStrategy NotificationStrategy { get; } = notificationStrategy;
+        public INotificationRepository? NotificationRepository { get; } = notificationRepository;
 
         public void BeginTransaction()
         {

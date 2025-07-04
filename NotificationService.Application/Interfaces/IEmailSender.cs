@@ -8,6 +8,6 @@ namespace NotificationService.Application.Interfaces
 {
     public interface IEmailSender
     {
-        Task<(bool isSuccess, string message)> SendEmailAsync(string to, string subject, string hashEmail);
+        Task<(bool isSuccess, string message)> SendEmailAsync(string to, string subject, string body);
     }
 }

@@ -12,7 +12,6 @@ namespace SagaCoordinator.Application.Saga
     {
         public State CreateTokenPending { get; private set; } = default!;
         public State SendMailPending { get; private set; } = default!;
-        public State Rollback { get; private set; } = default!;
 
         public Event<StartForgotPasswordSagaCommand> Start { get; private set; } = default!;
         public Event<ForgotPasswordCommand> ForgotPasswordCommand { get; private set; } = default!;
@@ -20,7 +19,6 @@ namespace SagaCoordinator.Application.Saga
         public Event<CreateTokenFailed> CreateTokenFailed { get; private set; } = default!;
         public Event<SendTokenEvent> SendTokenEvent { get; private set; } = default!;
         public Event<SendTokenFailed> SendTokenFailed { get; private set; } = default!;
-        public Event<EndForgotSagaFailed> EndForgotSagaFailed { get; private set; } = default!;
 
         [Obsolete]
         public ForgotPasswordSaga()
@@ -33,7 +31,6 @@ namespace SagaCoordinator.Application.Saga
             Event(() => CreateTokenFailed, x => x.CorrelateById(context => context.Message.CorrelationId));
             Event(() => SendTokenEvent, x => x.CorrelateById(context => context.Message.CorrelationId));
             Event(() => SendTokenFailed, x => x.CorrelateById(context => context.Message.CorrelationId));
-            Event(() => EndForgotSagaFailed, x => x.CorrelateById(context => context.Message.CorrelationId));
 
             Initially(
                 When(Start)
@@ -125,19 +122,6 @@ namespace SagaCoordinator.Application.Saga
                             TypeSaga.ForgotPassword,
                             StatusSaga.Failed,
                             "Failed to send token"
-                        ));
-                    })
-                    .TransitionTo(Rollback)
-            );
-            During(Rollback,
-                When(EndForgotSagaFailed)
-                    .ThenAsync(async context =>
-                    {
-                        await context.Publish(new UpdateStatusSaga(
-                            context.Instance.CorrelationId,
-                            TypeSaga.ForgotPassword,
-                            StatusSaga.Failed,
-                            "Rollback completed"
                         ));
                     })
                     .Finalize()

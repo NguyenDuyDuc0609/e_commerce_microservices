@@ -10,7 +10,7 @@ namespace NotificationService.Application.Interfaces
 {
     public interface INotificationRepository
     {
-        Task<bool> AddNotificationAsync(Guid userId, string recipient, string subject, string body, NotificationType type);
+        Task<bool> AddNotificationAsync(Guid? userId, string recipient, string subject, string body, NotificationType type);
         Task<IEnumerable<NotificationLog>> GetNotificationLogsAsync(Guid userId, int pageNumber, int pageSize);
     }
 }

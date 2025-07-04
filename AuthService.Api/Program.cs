@@ -17,6 +17,7 @@ using Microsoft.OpenApi.Models;
 using System.Text;
 using System.Text.Json;
 using RabbitMQ.Client;
+using AuthService.Infrastructure.Persistence.Cache;
 var builder = WebApplication.CreateBuilder(args);
 
 var redisSettings = builder.Configuration.GetSection("Redis");
@@ -145,7 +146,7 @@ builder.Services.AddScoped<IUserRoleRepository, UserRoleRepository>();
 builder.Services.AddScoped<ITokenService, JwtTokenService>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IUserSessionRepository, UserSessionRepository>();
-
+builder.Services.AddScoped<IAuthRedisCacheService, AuthRedisCacheService>();
 var app = builder.Build();
 app.UseSwagger();
 app.UseSwaggerUI(c =>

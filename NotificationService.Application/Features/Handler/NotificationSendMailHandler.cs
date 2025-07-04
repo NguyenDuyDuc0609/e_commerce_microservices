@@ -11,13 +11,16 @@ using System.Threading.Tasks;
 
 namespace NotificationService.Application.Features.Handler
 {
-    public class NotificationSendMailHandler(IUnitOfWork unitOfWork) : IRequestHandler<NotificationSendMailCommand, NotificationResult>
+    public class NotificationSendMailHandler(IUnitOfWork unitOfWork, INotificationStrategySelector notificationStrategySelector, INotificationStrategy notificationStrategy) : IRequestHandler<NotificationSendMailCommand, NotificationResult>
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
+        private readonly INotificationStrategySelector _notificationStrategySelector = notificationStrategySelector;
+        private readonly INotificationStrategy _notificationStrategy = notificationStrategy;
 
         public async Task<NotificationResult> Handle(NotificationSendMailCommand request, CancellationToken cancellationToken)
         {
-            var result = await _unitOfWork.NotificationStrategy.SendAsync(request.NotificationMessage);
+            var notificationStrategy = _notificationStrategySelector.GetStrategy(request.NotificationMessage.Type);
+            var result = await _notificationStrategy.SendAsync(request.NotificationMessage);
             if (!result.IsSuccess)
             {
                 return new NotificationResult
@@ -27,7 +30,7 @@ namespace NotificationService.Application.Features.Handler
                 };
             }
 
-            var notificationSaved = await _unitOfWork.NotificationRepository.AddNotificationAsync(
+            var notificationSaved = await _unitOfWork.NotificationRepository!.AddNotificationAsync(
                 request.NotificationMessage.UserId,
                 request.NotificationMessage.Email,
                 "Register email",
