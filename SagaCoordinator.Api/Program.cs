@@ -2,6 +2,7 @@ using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using SagaCoordinator.Application.Handlers;
+using SagaCoordinator.Application.HealthChecks;
 using SagaCoordinator.Application.Interfaces;
 using SagaCoordinator.Application.Saga;
 using SagaCoordinator.Domain.Constracts.SagaStates;
@@ -77,8 +78,11 @@ builder.Services.AddMediatR(cfg =>
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<ISagaRepository, SagaRepository>();
 builder.Services.AddScoped<ISagaRedis, SagaRedis>();
-
-
+builder.Services.AddHttpClient<IExternalHealthChecker, ExternalHealthChecker>(client =>
+{
+    client.BaseAddress = new Uri("https://localhost/7020");
+    client.Timeout = TimeSpan.FromSeconds(2);
+});
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

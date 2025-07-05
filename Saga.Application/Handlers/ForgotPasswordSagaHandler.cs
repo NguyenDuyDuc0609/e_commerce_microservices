@@ -13,13 +13,24 @@ using System.Threading.Tasks;
 
 namespace SagaCoordinator.Application.Handlers
 {
-    public class ForgotPasswordSagaHandler(IUnitOfWork unitOfWork, IPublishEndpoint publishEndpoint) : IRequestHandler<ForgotPasswordSagaCommand, ModelResult>
+    public class ForgotPasswordSagaHandler(IUnitOfWork unitOfWork, IPublishEndpoint publishEndpoint, IExternalHealthChecker externalHealthChecker) : IRequestHandler<ForgotPasswordSagaCommand, ModelResult>
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
         private readonly IPublishEndpoint _publishEndpoint = publishEndpoint;
+        private readonly IExternalHealthChecker _externalHealthChecker = externalHealthChecker;
+
 
         public async Task<ModelResult> Handle(ForgotPasswordSagaCommand request, CancellationToken cancellationToken)
         {
+            var result = await _externalHealthChecker.CheckHealthAsync();
+            if(!result)
+            {
+                return new ModelResult
+                {
+                    Message = "Auth service is not ready!",
+                    CorrelationId = null
+                };
+            }
             try
             {
                 var command = new StartForgotPasswordSagaCommand(

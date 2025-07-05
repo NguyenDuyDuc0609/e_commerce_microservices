@@ -2,7 +2,6 @@
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using RegisterConstracts.Commands;
 using SagaCoordinator.Application.Commands;
 using SagaCoordinator.Application.Dtos;
 using System.Runtime.InteropServices;
@@ -27,7 +26,7 @@ namespace SagaCoordinator.Api.Controllers
             return Ok(result);
         }
         [HttpPost("forgot-password-saga")]
-        public async Task<IActionResult> ForgotPasswordSaga([FromBody] ForgotPasswordCommand forgotPasswordDto)
+        public async Task<IActionResult> ForgotPasswordSaga([FromBody] ForgotPasswordSagaCommand forgotPasswordDto)
         {
             var result = await _mediator.Send(forgotPasswordDto);
             return Ok(result);

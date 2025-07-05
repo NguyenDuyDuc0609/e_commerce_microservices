@@ -4,6 +4,7 @@ using MediatR;
 using RegisterConstracts.Commands;
 using SagaCoordinator.Application.Commands;
 using SagaCoordinator.Application.Dtos;
+using SagaCoordinator.Application.HealthChecks;
 using SagaCoordinator.Application.Interfaces;
 using SagaCoordinator.Domain.Constracts.StartSaga;
 using SagaCoordinator.Domain.Enums;
@@ -15,13 +16,22 @@ using System.Threading.Tasks;
 
 namespace SagaCoordinator.Application.Handlers
 {
-    public class RegisterSagaHanlder(IUnitOfWork unitOfWork, IPublishEndpoint publishEndpoint) : IRequestHandler<RegisterUserCommandSaga, ModelResult>
+    public class RegisterSagaHanlder(IUnitOfWork unitOfWork, IPublishEndpoint publishEndpoint, IExternalHealthChecker externalHealthChecker) : IRequestHandler<RegisterUserCommandSaga, ModelResult>
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
         private readonly IPublishEndpoint _publishEndpoint = publishEndpoint;
-
+        private readonly IExternalHealthChecker _externalHealthChecker = externalHealthChecker;
         public async Task<ModelResult> Handle(RegisterUserCommandSaga request, CancellationToken cancellationToken)
         {
+            var result = await _externalHealthChecker.CheckHealthAsync();
+            if (!result)
+            {
+                return new ModelResult
+                {
+                    Message = "Auth service is not ready!",
+                    CorrelationId = null
+                };
+            }
             try
             {
                 var command = new StartRegisterSagaCommand(
