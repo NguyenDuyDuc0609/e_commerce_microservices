@@ -72,7 +72,7 @@ builder.Services.AddScoped<RegisterSendMail>();
 builder.Services.AddScoped<ForgotPasswordSendMail>();
 
 builder.Services.AddScoped<IEmailSender, EmailSender>();
-
+builder.Services.AddScoped<INotificationStrategy, RegisterSendMail>();
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 

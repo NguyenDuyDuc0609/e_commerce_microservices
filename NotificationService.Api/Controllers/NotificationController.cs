@@ -12,10 +12,8 @@ namespace NotificationService.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class NotificationController(ISendEndpointProvider sendEndpointProvider) : ControllerBase
+    public class NotificationController : ControllerBase
     {
-
-        private readonly ISendEndpointProvider _sendEndpointProvider = sendEndpointProvider;
 
         [HttpGet("status")]
         public IActionResult GetStatus()

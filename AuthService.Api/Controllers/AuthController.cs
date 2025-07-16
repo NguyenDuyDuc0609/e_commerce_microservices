@@ -13,12 +13,10 @@ namespace AuthService.Api.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public class AuthController : ControllerBase
+    public class AuthController(IMediator mediator) : ControllerBase
     {
-        private readonly IMediator _mediator;
-        public AuthController(IMediator mediator) {
-            _mediator = mediator;
-        }
+        private readonly IMediator _mediator = mediator;
+
         [HttpPost("login")]
         [AllowAnonymous]
         public async Task<IActionResult> Login([FromBody] LoginUserCommand loginUserCommand)
@@ -39,6 +37,19 @@ namespace AuthService.Api.Controllers
         {
             var email = new VerifyAccountCommand(token);
             var result = await _mediator.Send(email);
+            return Ok(result);
+        }
+        [HttpPost("reset-password")]
+        [AllowAnonymous]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordCommand resetPasswordCommand)
+        {
+            var result = await _mediator.Send(resetPasswordCommand);
+            return Ok(result);
+        }
+        [HttpPost("change-password")]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordCommand changePasswordCommand)
+        {
+            var result = await _mediator.Send(changePasswordCommand);
             return Ok(result);
         }
     }

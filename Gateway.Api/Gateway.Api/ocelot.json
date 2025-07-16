@@ -14,6 +14,20 @@
       "SwaggerKey": "Auth"
     },
     {
+      "DownstreamPathTemplate": "/api/Notification/status",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7066
+        }
+      ],
+      "UpstreamPathTemplate": "/api/Notification/status",
+      "UpstreamHttpMethod": [ "GET" ],
+      "SwaggerKey": "Notification"
+
+    },
+    {
       "DownstreamPathTemplate": "/api/Saga/register-saga",
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
