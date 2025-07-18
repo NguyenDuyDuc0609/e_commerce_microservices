@@ -4,6 +4,7 @@ using AuthService.Application.Interfaces;
 using MediatR;
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
@@ -24,13 +25,16 @@ namespace AuthService.Application.Features.Handler
             if(principal?.Identity?.Name is  null) return new UserDto { IsSuccess = false, Message = "Invalid token." };
             var userIdClaim = principal?.FindFirst(ClaimTypes.NameIdentifier);
             if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out Guid userId)) return new UserDto { IsSuccess = false, Message = "Invalid user ID in token." };
-            var refreshToken = await _authRedisCacheService.GetTokenAsync<string>(userId.ToString());
+
+            var sessionId = Guid.Parse(principal!.FindFirst("SessionId")!.Value);
+
+            var refreshToken = await _authRedisCacheService.GetTokenAsync<string>(sessionId.ToString());
             if (refreshToken == null) return new UserDto { IsSuccess = false, Message = "Refresh token is expired, please login again" };
             if (refreshToken != request.RefreshToken) return new UserDto { IsSuccess = false, Message = "Invalid refresh token." };
             var user = await _unitOfWork.UserRepository!.GetByIdAsync(userId);
             if (user == null) return new UserDto { IsSuccess = false, Message = "User not found." };
             var role = principal?.FindFirst(ClaimTypes.Role)?.Value;
-            var token = _tokenService.GenerateJWT(user, role!);
+            var token = _tokenService.GenerateJWT(user, role!, sessionId);
             return new UserDto
             {
                 Message = "Token refreshed successfully.",

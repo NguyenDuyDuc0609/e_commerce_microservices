@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace AuthService.Application.Features.Users.Dtos
 {
     public record UpdateCache {
-        public Guid UserId { get; init; }
+        public Guid SessionId { get; init; }
         public string? RefreshToken { get; init; }
     };
 }

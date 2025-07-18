@@ -15,8 +15,7 @@ namespace AuthService.Infrastructure.Consumers
 
         public async Task Consume(ConsumeContext<UpdateCache> context)
         {
-            await _authRedisCacheService.SetTokenAsync(context.Message.UserId.ToString(), context.Message.RefreshToken ?? string.Empty, TimeSpan.FromDays(7));
-            await Task.CompletedTask;
+            await _authRedisCacheService.SetTokenAsync(context.Message.SessionId.ToString(), context.Message.RefreshToken ?? string.Empty, TimeSpan.FromDays(7));
         }
     }
 }

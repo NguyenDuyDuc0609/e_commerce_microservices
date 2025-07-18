@@ -30,16 +30,14 @@ namespace AuthService.Application.Features.Handler
                 string? roleName = user.user.UserRoles?.FirstOrDefault()?.Role?.RoleName;
 
                 if (roleName == null || roleName == string.Empty) return new UserDto { IsSuccess = false, Message = "User role not found."};
-
-                var token = _tokenService.GenerateJWT(user.user, roleName);
                 var refreshtoken = _tokenService.GenerateRefreshToken();
                 
                 var result = await _unitOfWork.UserSessionRepository!.NewLoginDevice(user.user.UserId, request.DeviceInfor, request.IpAddress, refreshtoken);
-
-                if(!result) return new UserDto { IsSuccess = false, Message = "Failed to create new session for user." };
+                var token = _tokenService.GenerateJWT(user.user, roleName, result);
+                if (result == Guid.Empty) return new UserDto { IsSuccess = false, Message = "Failed to create new session for user." };
                 await publishEndpoint.Publish(new UpdateCache
                 {
-                    UserId = user.user.UserId,
+                    SessionId = result,
                     RefreshToken = refreshtoken
                 }, cancellationToken);
                 await _unitOfWork.SaveChangesAsync(cancellationToken);

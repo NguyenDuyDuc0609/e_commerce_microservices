@@ -17,7 +17,7 @@ namespace AuthService.Infrastructure.Services
     {
         private readonly IConfiguration _configuration = configuration;
 
-        public string GenerateJWT(User user, string role)
+        public string GenerateJWT(User user, string role, Guid sessionId)
         {
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
@@ -26,7 +26,8 @@ namespace AuthService.Infrastructure.Services
                 new(ClaimTypes.NameIdentifier, user.UserId.ToString()),
                 new(ClaimTypes.Email, user.Email),
                 new(ClaimTypes.Name, user.Username),
-                new(ClaimTypes.Role, role)
+                new(ClaimTypes.Role, role),
+                new Claim("SessionId", sessionId.ToString())
             };
             var token = new JwtSecurityToken(_configuration["Jwt:Issuer"],
                 _configuration["Jwt:Audience"],

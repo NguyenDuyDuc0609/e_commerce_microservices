@@ -10,8 +10,8 @@ namespace AuthService.Application.Interfaces
     {
         Task<bool> IsAuthenticated(Guid userId, string token, string deviceInfor, string ipAddress);
         Task<bool> Logout(Guid userId, string token, string deviceInfor, string ipAddress);
-        Task<bool> NewLoginDevice(Guid userId,string token, string deviceInfor, string ipAddress);
-        Task<bool> DeleteDevice(string deviceInfor, string ipAddress);
+        Task<Guid> NewLoginDevice(Guid userId,string token, string deviceInfor, string ipAddress);
+        Task<bool> DeleteDevice(Guid userId, string deviceInfor);
         Task<bool> LogoutAllDevice(string deviceInfor, string ipAddress);
     }
 }

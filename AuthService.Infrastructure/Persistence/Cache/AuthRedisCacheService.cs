@@ -15,8 +15,9 @@ namespace AuthService.Infrastructure.Persistence.Cache
         {
             _cache = cache;
         }
-        public async Task<T?> GetTokenAsync<T>(string key)
+        public async Task<T?> GetTokenAsync<T>(string sessionId)
         {
+            string key = $"token:{sessionId}";
             var jsonToken = await _cache.GetStringAsync(key);
             if (jsonToken is null) return default;
 
@@ -26,13 +27,15 @@ namespace AuthService.Infrastructure.Persistence.Cache
             return JsonSerializer.Deserialize<T>(jsonToken);
         }
 
-        public async Task RemoveTokenAsync(string key)
+        public async Task RemoveTokenAsync(string sessionId)
         {
+            string key = $"token:{sessionId}";
             await _cache.RemoveAsync(key);
         }
 
-        public async Task SetTokenAsync(string key, string token, TimeSpan? expiration = null)
+        public async Task SetTokenAsync(string sessionId, string token, TimeSpan? expiration = null)
         {
+            string key = $"token:{sessionId}";
             var cacheOptions = new DistributedCacheEntryOptions
             {
                 AbsoluteExpirationRelativeToNow = expiration ?? TimeSpan.FromDays(7)
