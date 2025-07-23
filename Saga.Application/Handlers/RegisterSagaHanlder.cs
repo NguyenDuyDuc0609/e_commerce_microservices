@@ -41,8 +41,7 @@ namespace SagaCoordinator.Application.Handlers
                     request.PasswordHash,
                     request.PhoneNumber,
                     request.Address
-                );
-                await _unitOfWork.SagaRedis!.SetSagaRedis(command.CorrelationId, command);
+                );  
                 await _unitOfWork.SagaRepository!.AddNewSaga(command.CorrelationId, TypeSaga.Register, "Register processing");
 
                 await _publishEndpoint.Publish(command, cancellationToken);

@@ -11,13 +11,9 @@ using System.Threading.Tasks;
 
 namespace SagaCoordinator.Infrastructure.Repositories
 {
-    public class SagaRedis : ISagaRedis
+    public class SagaRedis(IDistributedCache distributedCache) : ISagaRedis
     {
-        private readonly IDistributedCache _distributedCache;
-        public SagaRedis(IDistributedCache distributedCache)
-        {
-            _distributedCache = distributedCache;
-        }
+        private readonly IDistributedCache _distributedCache = distributedCache;
 
         public async Task ChangeSagaStatus(Guid correlationId, object saga)
         {

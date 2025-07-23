@@ -10,14 +10,11 @@ namespace SagaCoordinator.Infrastructure.Persistence
     {
         private readonly SagaContext _context;
         private IDbContextTransaction? _transaction;
-
-        public ISagaRedis SagaRedis { get; }
         public ISagaRepository SagaRepository { get; }
 
-        public UnitOfWork(SagaContext context, ISagaRedis sagaRedis, ISagaRepository sagaRepository)
+        public UnitOfWork(SagaContext context, ISagaRepository sagaRepository)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
-            SagaRedis = sagaRedis ?? throw new ArgumentNullException(nameof(sagaRedis));
             SagaRepository = sagaRepository ?? throw new ArgumentNullException(nameof(sagaRepository));
         }
 

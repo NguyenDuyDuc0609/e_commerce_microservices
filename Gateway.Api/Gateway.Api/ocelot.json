@@ -54,6 +54,32 @@
       "SwaggerKey": "Saga"
     },
     {
+      "DownstreamPathTemplate": "/api/Saga/forgot-password-saga",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7151
+        }
+      ],
+      "UpstreamPathTemplate": "/api/Saga/forgot-password-saga",
+      "UpstreamHttpMethod": [ "POST" ],
+      "SwaggerKey": "Saga"
+    },
+    {
+      "DownstreamPathTemplate": "/api/Saga/register-result",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7151
+        }
+      ],
+      "UpstreamPathTemplate": "/api/Saga/register-result",
+      "UpstreamHttpMethod": [ "POST" ],
+      "SwaggerKey": "Saga"
+    },
+    {
       "DownstreamPathTemplate": "/swagger/v1/swagger.json",
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [

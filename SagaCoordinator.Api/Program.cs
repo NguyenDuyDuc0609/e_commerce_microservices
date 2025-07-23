@@ -77,6 +77,7 @@ builder.Services.AddMediatR(cfg =>
 });
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<ISagaRepository, SagaRepository>();
+builder.Services.Decorate<ISagaRepository, SagaRedisCacheDecorator>();
 builder.Services.AddScoped<ISagaRedis, SagaRedis>();
 builder.Services.AddHttpClient<IExternalHealthChecker, ExternalHealthChecker>(client =>
 {

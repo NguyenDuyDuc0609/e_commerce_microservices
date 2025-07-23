@@ -11,7 +11,6 @@ namespace SagaCoordinator.Application.Interfaces
     {
         Task<object> AddNewSaga(Guid correlationId, TypeSaga typeSaga, string? message);
         Task<bool> UpdateSagaStatus(Guid correlationId, TypeSaga typeSaga, StatusSaga status, string? message);
-        Task<bool> SagaExists(Guid correlationId, TypeSaga typeSaga);
-        Task<StatusSaga?> GetSagaStatus(Guid correlationId, TypeSaga typeSaga);
+        Task<StatusSaga?> GetSagaStatus(Guid correlationId);
     }
 }

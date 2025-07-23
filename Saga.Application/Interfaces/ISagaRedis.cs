@@ -12,6 +12,5 @@ namespace SagaCoordinator.Application.Interfaces
         Task SetSagaRedis(Guid correlationId, object saga, TimeSpan? expiration = null);
         Task<T?> GetSagaRedis<T>(Guid correlationId) where T : class;
         Task ChangeSagaStatus(Guid correlationId, object saga);
-
     }
 }

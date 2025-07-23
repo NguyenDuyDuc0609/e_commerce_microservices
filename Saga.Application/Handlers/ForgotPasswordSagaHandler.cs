@@ -37,7 +37,6 @@ namespace SagaCoordinator.Application.Handlers
                     Guid.NewGuid(),
                     request.Email
                 );
-                await _unitOfWork.SagaRedis!.SetSagaRedis(command.CorrelationId, command);
                 await _unitOfWork.SagaRepository!.AddNewSaga(command.CorrelationId, TypeSaga.ForgotPassword, "Forgot password processing");
                 await _publishEndpoint.Publish(command, cancellationToken);
 

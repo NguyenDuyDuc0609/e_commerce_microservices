@@ -23,20 +23,15 @@ namespace SagaCoordinator.Infrastructure.Repositories
             return saga;
         }
 
-        public async Task<StatusSaga?> GetSagaStatus(Guid correlationId, TypeSaga typeSaga)
+        public async Task<StatusSaga?> GetSagaStatus(Guid correlationId)
         {
             var saga = await _context.SagaStatuses
-                .Where(s => s.CorrelationId == correlationId && s.TypeSaga == typeSaga)
+                .Where(s => s.CorrelationId == correlationId)
                 .Select(s => s.Status)
                 .FirstOrDefaultAsync();
             return saga;
         }
 
-        public async Task<bool> SagaExists(Guid correlationId, TypeSaga typeSaga)
-        {
-            return await _context.SagaStatuses
-                .AnyAsync(s => s.CorrelationId == correlationId && s.TypeSaga == typeSaga);
-        }
 
         public async Task<bool> UpdateSagaStatus(Guid correlationId, TypeSaga typeSaga, StatusSaga status, string? message)
         {

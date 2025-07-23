@@ -8,7 +8,6 @@ namespace SagaCoordinator.Application.Interfaces
 {
     public interface IUnitOfWork
     {
-        ISagaRedis? SagaRedis { get; }
         ISagaRepository? SagaRepository { get; }
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
         Task CommitAsync();

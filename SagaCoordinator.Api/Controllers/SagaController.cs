@@ -31,5 +31,11 @@ namespace SagaCoordinator.Api.Controllers
             var result = await _mediator.Send(forgotPasswordDto);
             return Ok(result);
         }
+        [HttpPost("register-result")]
+        public async Task<IActionResult> RegisterResult([FromBody] RegisterResultCommand registerResultDto)
+        {
+            var result = await _mediator.Send(registerResultDto);
+            return Ok(result);
+        }
     }
 }
