@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Folder Include="Features\ProductHandlers\" />
+    <Folder Include="Features\Products\ProductQueries\" />
+    <Folder Include="Features\Products\ProductCommands\" />
+    <Folder Include="Interfaces\" />
+  </ItemGroup>
+
+</Project>
