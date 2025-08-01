@@ -82,5 +82,6 @@ namespace ProductService.Domain.Entities
             Slug = slug;
             return true;
         }
+
     }
 }

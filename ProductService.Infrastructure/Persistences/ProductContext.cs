@@ -18,11 +18,9 @@ namespace ProductService.Infrastructure.Persistences
         public DbSet<Product> Products { get; set; }
         public DbSet<Discount> Discounts { get; set; }
         public DbSet<Review> Reviews { get; set; }
-        public DbSet<ProductAttribute> ProductAttributes { get; set; }
         public DbSet<ProductDiscount> ProductDiscounts { get; set; }
         public DbSet<SKU> SKUs { get; set; }
         public DbSet<SKUAttribute> SKUAtrributes { get; set; }
-        public DbSet<ProductRatingSummary> ProductRatingSummaries { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -33,15 +31,41 @@ namespace ProductService.Infrastructure.Persistences
                 .WithOne(p => p.Category)
                 .HasForeignKey(p => p.CategoryId)
                 .OnDelete(DeleteBehavior.Cascade);
+
             modelBuilder.Entity<Product>()
                 .HasKey(p => p.ProductId);
+            modelBuilder.Entity<Product>()
+                .HasIndex(p => new { p.CategoryId, p.Price })
+                .HasDatabaseName("IX_CategoryId_Price");
+
             modelBuilder.Entity<Product>()
                 .HasMany(p => p.Reviews)
                 .WithOne(r => r.Product)
                 .HasForeignKey(r => r.ProductId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Product>()
+                .OwnsMany(p => p.ProductAttributes, pa =>
+                {
+                    pa.WithOwner().HasForeignKey("ProductId");
+                    pa.HasKey("ProductId", "AttributeName");
+                    pa.Property(pa => pa.AttributeValue).IsRequired();
+                });
+            modelBuilder.Entity<Product>()
+                .OwnsOne(p => p.ProductRatingSummaries, pr =>
+                {
+                    pr.WithOwner().HasForeignKey("ProductId");
+                    pr.HasKey("ProductId");
+                    pr.Property(pr => pr.AverageRating).IsRequired();
+                    pr.Property(pr => pr.TotalReviews).IsRequired();
+                });
+
             modelBuilder.Entity<Discount>()
                 .HasKey(d => d.DiscountId);
+
+            modelBuilder.Entity<ProductDiscount>()
+                .HasKey(pd => pd.ProductDiscountId);
+
             modelBuilder.Entity<ProductDiscount>()
                 .HasOne(pd => pd.Product)
                 .WithMany(p => p.ProductDiscounts)
@@ -52,6 +76,8 @@ namespace ProductService.Infrastructure.Persistences
                 .WithMany(d => d.ProductDiscounts)
                 .HasForeignKey(pd => pd.DiscountId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+
             modelBuilder.Entity<Review>()
                 .HasKey(r => r.ReviewId);
             modelBuilder.Entity<Review>()
@@ -59,13 +85,10 @@ namespace ProductService.Infrastructure.Persistences
                 .WithMany(p => p.Reviews)
                 .HasForeignKey(r => r.ProductId)
                 .OnDelete(DeleteBehavior.Cascade);
-            modelBuilder.Entity<ProductAttribute>()
-                .HasKey(pa => pa.ProductAttributeId);
-            modelBuilder.Entity<ProductAttribute>()
-                .HasOne(pa => pa.Product)
-                .WithMany(p => p.ProductAttributes)
-                .HasForeignKey(pa => pa.ProductId)
-                .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<Review>()
+                .HasIndex(r => new { r.ProductId, r.CreatedAt })
+                .HasDatabaseName("IX_ProductId_CreateAt");
+
             modelBuilder.Entity<SKU>()
                 .HasKey(s => s.SKUId);
             modelBuilder.Entity<SKU>()
@@ -73,6 +96,10 @@ namespace ProductService.Infrastructure.Persistences
                 .WithMany(p => p.SKUs)
                 .HasForeignKey(s => s.ProductId)
                 .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<SKU>()
+                .HasIndex(s => s.ProductId)
+                .HasDatabaseName("IX_SKU_ProductId");
+
             modelBuilder.Entity<SKUAttribute>()
                 .HasKey(s => s.SKUAttributeId);
             modelBuilder.Entity<SKUAttribute>()
@@ -80,13 +107,9 @@ namespace ProductService.Infrastructure.Persistences
                 .WithMany(s => s.SKUAttributes)
                 .HasForeignKey(s => s.SKUId)
                 .OnDelete(DeleteBehavior.Cascade);
-            modelBuilder.Entity<ProductRatingSummary>()
-                .HasKey(prs => prs.ProductRatingSummaryId);
-            modelBuilder.Entity<ProductRatingSummary>()
-                .HasOne(prs => prs.Product)
-                .WithOne(p => p.ProductRatingSummaries)
-                .HasForeignKey<ProductRatingSummary>(prs => prs.ProductId)
-                .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<SKUAttribute>()
+                .HasIndex(s => s.SKUId)
+                .HasDatabaseName("IX_SKUAttribute_SKUId");
         }
     }
 }
