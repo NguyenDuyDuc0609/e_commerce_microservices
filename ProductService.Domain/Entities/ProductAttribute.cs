@@ -18,5 +18,11 @@ namespace ProductService.Domain.Entities
             AttributeName = attributeName;
             AttributeValue = attributeValue;
         }
+
+        public void UpdateAttribute(string? attributeName, string? attributeValue)
+        {
+            AttributeName = attributeName;
+            AttributeValue = attributeValue;
+        }
     }
 }

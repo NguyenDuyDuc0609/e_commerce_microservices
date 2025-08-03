@@ -2,7 +2,9 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using ProductService.Application.Interfaces;
 using ProductService.Infrastructure.Persistences;
+using ProductService.Infrastructure.Repositories;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -68,11 +70,16 @@ builder.Services.AddSwaggerGen(options =>
         }
     });
 });
+
 builder.Services.AddStackExchangeRedisCache(options =>
 {
     options.Configuration = $"{redisHost}:{redisPort}";
     options.InstanceName = "Auth_";
 });
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<IRepository, Repository>();
+builder.Services.Decorate<IRepository, ProductDecoratorRedis>();
+
 var app = builder.Build();
 
 //// Configure the HTTP request pipeline.

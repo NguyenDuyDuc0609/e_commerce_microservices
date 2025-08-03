@@ -6,17 +6,11 @@ using System.Threading.Tasks;
 
 namespace SagaCoordinator.Infrastructure.Persistence
 {
-    public class UnitOfWork : IUnitOfWork
+    public class UnitOfWork(SagaContext context, ISagaRepository sagaRepository) : IUnitOfWork
     {
-        private readonly SagaContext _context;
+        private readonly SagaContext _context = context ?? throw new ArgumentNullException(nameof(context));
         private IDbContextTransaction? _transaction;
-        public ISagaRepository SagaRepository { get; }
-
-        public UnitOfWork(SagaContext context, ISagaRepository sagaRepository)
-        {
-            _context = context ?? throw new ArgumentNullException(nameof(context));
-            SagaRepository = sagaRepository ?? throw new ArgumentNullException(nameof(sagaRepository));
-        }
+        public ISagaRepository SagaRepository { get; } = sagaRepository ?? throw new ArgumentNullException(nameof(sagaRepository));
 
         public void BeginTransaction()
         {

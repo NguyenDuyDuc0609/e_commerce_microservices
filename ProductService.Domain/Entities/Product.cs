@@ -15,16 +15,23 @@ namespace ProductService.Domain.Entities
         public string Slug { get; private set; } = string.Empty;
         public string Brand { get; private set; } = string.Empty;
         public string ImageUrl { get; private set; } = string.Empty;
-        public decimal Price { get; private set; }
-        public bool IsActive { get; private set; } 
+        public decimal Price { get; private set; } = 0.0m;
+        public bool IsActive { get; private set; } = true;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime UpdatedAt { get; private set; } = DateTime.UtcNow;
         public Category Category { get; set; } = null!;
         public ICollection<SKU> SKUs { get; set; } = new List<SKU>();
         public ICollection<Review> Reviews { get; set; } = new List<Review>();
         public ICollection<ProductDiscount> ProductDiscounts { get; set; } = new List<ProductDiscount>();
-        public ICollection<ProductAttribute> ProductAttributes { get; set; } = new List<ProductAttribute>();
-        public ProductRatingSummary? ProductRatingSummaries { get; set; }
+
+        private List<ProductAttribute> _attributes = new();
+        public IReadOnlyCollection<ProductAttribute> ProductAttributes => _attributes.AsReadOnly();
+
+        private ProductRatingSummary _ratingSummary = default!;
+        public ProductRatingSummary RatingSummary => _ratingSummary;
+
+ 
+
         public Product(string name, string description, string slug, string brand, string imageUrl, decimal price)
         {
             Name = name;
@@ -82,6 +89,32 @@ namespace ProductService.Domain.Entities
             Slug = slug;
             return true;
         }
-
+        public void AddAttribute(string attributeName, string attributeValue)
+        {
+            if (string.IsNullOrWhiteSpace(attributeName) || string.IsNullOrWhiteSpace(attributeValue))
+            {
+                throw new ArgumentException("Attribute name and value cannot be null or empty.");
+            }
+            _attributes.Add(new ProductAttribute(attributeName, attributeValue));
+        }
+        public void UpdateAttribute(string attributeName, string attributeValue){
+            if (string.IsNullOrWhiteSpace(attributeName) || string.IsNullOrWhiteSpace(attributeValue))
+            {
+                throw new ArgumentException("Attribute name and value cannot be null or empty.");
+            }
+            var existingAttribute = _attributes.SingleOrDefault(pa => pa.AttributeName!.Equals(attributeName, StringComparison.OrdinalIgnoreCase));
+            if (existingAttribute != null)
+            {
+                existingAttribute.UpdateAttribute(attributeName, attributeValue);
+            }
+            else
+            {
+                _attributes.Add(new ProductAttribute(attributeName, attributeValue));
+            }
+        }
+        public void UpdateRatingSummary(int rating, int? oldRating = 0)
+        {
+            _ratingSummary.UpdateRating(rating, oldRating);
+        }
     }
 }

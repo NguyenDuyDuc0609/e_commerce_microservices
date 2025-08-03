@@ -52,12 +52,12 @@ namespace ProductService.Infrastructure.Persistences
                     pa.Property(pa => pa.AttributeValue).IsRequired();
                 });
             modelBuilder.Entity<Product>()
-                .OwnsOne(p => p.ProductRatingSummaries, pr =>
+                .OwnsOne(typeof(ProductRatingSummary), "_ratingSummary", pr =>
                 {
                     pr.WithOwner().HasForeignKey("ProductId");
                     pr.HasKey("ProductId");
-                    pr.Property(pr => pr.AverageRating).IsRequired();
-                    pr.Property(pr => pr.TotalReviews).IsRequired();
+                    pr.Property("AverageRating").IsRequired();
+                    pr.Property("TotalReviews").IsRequired();
                 });
 
             modelBuilder.Entity<Discount>()

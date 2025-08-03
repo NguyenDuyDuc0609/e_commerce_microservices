@@ -86,7 +86,6 @@ builder.Services.AddHttpClient<IExternalHealthChecker, ExternalHealthChecker>(cl
 });
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
