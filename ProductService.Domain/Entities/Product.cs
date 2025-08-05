@@ -45,6 +45,7 @@ namespace ProductService.Domain.Entities
             IsActive = true;
             CreatedAt = DateTime.UtcNow;
             UpdatedAt = DateTime.UtcNow;
+            CreateRatingSummary();
         }
         public void UpdateProduct(string name, string description, string slug, string brand, string imageUrl, decimal price)
         {
@@ -119,6 +120,10 @@ namespace ProductService.Domain.Entities
         public void UpdateRatingSummary(int rating, int? oldRating = 0)
         {
             _ratingSummary.UpdateRating(rating, oldRating);
+        }
+        public void CreateRatingSummary()
+        {
+            _ratingSummary ??= new ProductRatingSummary(0,0,0,0,0,0,0,DateTime.UtcNow);
         }
     }
 }

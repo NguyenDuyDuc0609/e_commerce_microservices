@@ -21,6 +21,7 @@ namespace ProductService.Infrastructure.Repositories
             try
             {
                 await _context.Products.AddAsync(product);
+
                 return true;
             }
             catch (Exception ex)

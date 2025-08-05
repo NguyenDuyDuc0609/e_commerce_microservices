@@ -51,15 +51,22 @@ namespace ProductService.Infrastructure.Persistences
                     pa.HasKey("ProductId", "AttributeName");
                     pa.Property(pa => pa.AttributeValue).IsRequired();
                 });
+            //modelBuilder.Entity<Product>()
+            //    .OwnsOne(typeof(ProductRatingSummary), "_ratingSummary", pr =>
+            //    {
+            //        pr.WithOwner().HasForeignKey("ProductId");
+            //        pr.HasKey("ProductId");
+            //        pr.Property("AverageRating").IsRequired();
+            //        pr.Property("TotalReviews").IsRequired();
+            //    });
             modelBuilder.Entity<Product>()
-                .OwnsOne(typeof(ProductRatingSummary), "_ratingSummary", pr =>
-                {
-                    pr.WithOwner().HasForeignKey("ProductId");
-                    pr.HasKey("ProductId");
-                    pr.Property("AverageRating").IsRequired();
-                    pr.Property("TotalReviews").IsRequired();
-                });
-
+                    .OwnsOne(p => p.RatingSummary, pr =>
+                    {
+                        pr.WithOwner().HasForeignKey("ProductId");
+                        pr.HasKey("ProductId");
+                        pr.Property(p => p.AverageRating).IsRequired();
+                        pr.Property(p => p.TotalReviews).IsRequired();
+                    });
             modelBuilder.Entity<Discount>()
                 .HasKey(d => d.DiscountId);
 

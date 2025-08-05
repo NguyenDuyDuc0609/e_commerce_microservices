@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace ProductService.Application.Features.ProductHandlers.ProductCommandHandlers
 {
-    public class ReviewHanlder(IUnitOfWork unitOfWork) : IRequestHandler<ReviewCommand, CommandDto>
+    public class ReviewHandler(IUnitOfWork unitOfWork) : IRequestHandler<ReviewCommand, CommandDto>
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
 
