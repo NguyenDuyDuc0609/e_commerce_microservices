@@ -13,5 +13,6 @@ namespace ProductService.Application.Interfaces
         void Dispose();
         Task CommitAsync();
         Task Rollback();
+        Task BeginTransactionAsync();   
     }
 }

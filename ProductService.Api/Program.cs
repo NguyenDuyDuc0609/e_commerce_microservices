@@ -2,9 +2,11 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using ProductService.Application;
 using ProductService.Application.Interfaces;
 using ProductService.Infrastructure.Persistences;
 using ProductService.Infrastructure.Repositories;
+using Serilog;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -79,7 +81,17 @@ builder.Services.AddStackExchangeRedisCache(options =>
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IRepository, Repository>();
 builder.Services.Decorate<IRepository, ProductDecoratorRedis>();
-
+builder.Host.UseSerilog((context, services, configuration) =>
+{
+    configuration
+        .ReadFrom.Configuration(context.Configuration)
+        .ReadFrom.Services(services)
+        .Enrich.FromLogContext();
+});
+builder.Services.AddMediatR(cfg =>
+{
+    cfg.RegisterServicesFromAssemblyContaining<AssemblyReference>();
+});
 var app = builder.Build();
 
 //// Configure the HTTP request pipeline.
@@ -88,6 +100,8 @@ var app = builder.Build();
 //    app.UseSwagger();
 //    app.UseSwaggerUI();
 //}
+app.UseSerilogRequestLogging();
+
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {

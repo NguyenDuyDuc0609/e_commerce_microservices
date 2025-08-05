@@ -1,4 +1,5 @@
 ﻿using ProductService.Application.Features.Dtos;
+using ProductService.Domain.Entities;
 using ProductService.Domain.Enums;
 using System;
 using System.Collections.Generic;
@@ -10,7 +11,7 @@ namespace ProductService.Application.Interfaces
 {
     public interface IRepository
     {
-        Task<bool> AddProduct();
+        Task<bool> AddProduct(Product product);
         Task<bool> UpdateProduct(Guid productId, string name, decimal price);
         Task<bool> DeleteProduct(Guid productId);
         Task<T> GetProductById<T>(Guid productId);

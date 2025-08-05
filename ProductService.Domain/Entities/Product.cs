@@ -32,8 +32,10 @@ namespace ProductService.Domain.Entities
 
  
 
-        public Product(string name, string description, string slug, string brand, string imageUrl, decimal price)
+        public Product( Guid categoryId ,string name , string description, string slug, string brand, string imageUrl, decimal price)
         {
+            ProductId = Guid.NewGuid();
+            CategoryId = categoryId;
             Name = name;
             Description = description;
             Slug = slug;
@@ -41,6 +43,8 @@ namespace ProductService.Domain.Entities
             ImageUrl = imageUrl;
             Price = price;
             IsActive = true;
+            CreatedAt = DateTime.UtcNow;
+            UpdatedAt = DateTime.UtcNow;
         }
         public void UpdateProduct(string name, string description, string slug, string brand, string imageUrl, decimal price)
         {

@@ -20,7 +20,15 @@ namespace ProductService.Infrastructure.Repositories
         {
             return await _productContext.SaveChangesAsync(cancellationToken);
         }
+        public async Task BeginTransactionAsync()
+        {
+            if (_transaction != null)
+            {
+                throw new InvalidOperationException("A transaction is already in progress.");
+            }
 
+            _transaction = await _productContext.Database.BeginTransactionAsync();
+        }
         public void Dispose()
         {
             _transaction?.Dispose();

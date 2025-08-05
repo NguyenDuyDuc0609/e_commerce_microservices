@@ -1,5 +1,6 @@
 ﻿using ProductService.Application.Features.Dtos;
 using ProductService.Application.Interfaces;
+using ProductService.Domain.Entities;
 using ProductService.Domain.Enums;
 using System;
 using System.Collections.Generic;
@@ -11,11 +12,16 @@ namespace ProductService.Infrastructure.Repositories
 {
     public class ProductDecoratorRedis(IRepository repository) : IRepository
     {
-        private readonly IRepository _repository = repository ?? throw new ArgumentNullException(nameof(repository));
+        private readonly IRepository _repository = repository;
 
-        public Task<bool> AddProduct()
+        public async Task<bool> AddProduct(Product product)
         {
-            throw new NotImplementedException();
+            var result = await _repository.AddProduct(product);
+            if (result)
+            {
+                return true;
+            }
+            return false;
         }
 
         public Task<bool> AddSKU(Guid guid, string sku, string description, decimal price, int stock)

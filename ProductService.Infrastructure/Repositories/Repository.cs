@@ -1,6 +1,9 @@
-﻿using ProductService.Application.Features.Dtos;
+﻿using Microsoft.Extensions.Logging;
+using ProductService.Application.Features.Dtos;
 using ProductService.Application.Interfaces;
+using ProductService.Domain.Entities;
 using ProductService.Domain.Enums;
+using ProductService.Infrastructure.Persistences;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,11 +12,22 @@ using System.Threading.Tasks;
 
 namespace ProductService.Infrastructure.Repositories
 {
-    public class Repository : IRepository
+    public class Repository(ProductContext context, ILogger<Repository> logger) : IRepository
     {
-        public Task<bool> AddProduct()
+        private readonly ProductContext _context = context;
+        private readonly ILogger<Repository> _logger = logger;
+        public async Task<bool> AddProduct(Product product)
         {
-            throw new NotImplementedException();
+            try
+            {
+                await _context.Products.AddAsync(product);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error adding product at {TimeUtc}", DateTime.UtcNow);
+                return false;
+            }
         }
 
         public Task<bool> AddSKU(Guid guid, string sku, string description, decimal price, int stock)

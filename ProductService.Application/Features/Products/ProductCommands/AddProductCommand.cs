@@ -8,5 +8,5 @@ using System.Threading.Tasks;
 
 namespace ProductService.Application.Features.Products.ProductCommands
 {
-    public record AddProductCommand : IRequest<CommandDto>;
+    public record AddProductCommand(AddProductDto AddProductDto) : IRequest<CommandDto>;
 }
