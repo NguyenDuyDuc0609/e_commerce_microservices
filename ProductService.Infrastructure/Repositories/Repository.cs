@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using ProductService.Application.Features.Dtos;
 using ProductService.Application.Interfaces;
 using ProductService.Domain.Entities;
@@ -7,15 +8,16 @@ using ProductService.Infrastructure.Persistences;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.WebSockets;
+using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace ProductService.Infrastructure.Repositories
 {
-    public class Repository(ProductContext context, ILogger<Repository> logger) : IRepository
+    public class Repository(ProductContext context) : IRepository
     {
         private readonly ProductContext _context = context;
-        private readonly ILogger<Repository> _logger = logger;
         public async Task<bool> AddProduct(Product product)
         {
             try
@@ -26,8 +28,7 @@ namespace ProductService.Infrastructure.Repositories
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error adding product at {TimeUtc}", DateTime.UtcNow);
-                return false;
+                throw new Exception("Failed to add product", ex);
             }
         }
 
@@ -51,19 +52,37 @@ namespace ProductService.Infrastructure.Repositories
             throw new NotImplementedException();
         }
 
-        public Task<IEnumerable<QueryDto>> GetAllProducts(int pageNumber, int pageSize)
+        public async Task<List<Product>> GetAllProducts(int pageNumber, int pageSize)
         {
-            throw new NotImplementedException();
+            try
+            {
+                return await _context.Products
+                    .Skip((pageNumber - 1) * pageSize)
+                    .Take(pageSize)
+                    .ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Failed to retrieve products", ex);
+            }
         }
 
-        public Task<T> GetProductById<T>(Guid productId)
+        public async Task<T?> GetProductById<T>(Guid productId) where T : Product
         {
-            throw new NotImplementedException();
+            var product = await _context.Products
+                .Where(p => p.ProductId == productId).FirstOrDefaultAsync();
+            if (product == null)
+            {
+                return null;
+            }
+            return product as T;
         }
 
-        public Task<T> GetProductById<T>(int productId) where T : class
+        public async Task<T?> GetProductByName<T>(string name) where T : Product
         {
-            throw new NotImplementedException();
+            var product = await _context.Products.Where(p => p.Name.Contains(name)).FirstOrDefaultAsync();
+            if (product == null) return default;
+            return product as T;
         }
 
         public Task<T> ProductReview<T>(int pageNumber, int pageSize, Guid productId)

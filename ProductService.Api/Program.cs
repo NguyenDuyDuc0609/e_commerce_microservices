@@ -4,6 +4,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using ProductService.Application;
 using ProductService.Application.Interfaces;
+using ProductService.Application.Services;
 using ProductService.Infrastructure.Persistences;
 using ProductService.Infrastructure.Repositories;
 using Serilog;
@@ -80,7 +81,8 @@ builder.Services.AddStackExchangeRedisCache(options =>
 });
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IRepository, Repository>();
-builder.Services.Decorate<IRepository, ProductDecoratorRedis>();
+builder.Services.AddScoped<IProductService, ProductServices>();
+builder.Services.Decorate<IProductService,ProductServiceCache>();
 builder.Host.UseSerilog((context, services, configuration) =>
 {
     configuration

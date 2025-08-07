@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using ProductService.Application.Features.Dtos;
+using ProductService.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,5 +9,5 @@ using System.Threading.Tasks;
 
 namespace ProductService.Application.Features.Products.ProductQueries
 {
-    public record GetProductByIdQuery(string ProductId) : IRequest<QueryDto>;
+    public record AdminGetAllProductQuery(AdminGetProduct AdminGetProduct) : IRequest<QueryDto>;
 }

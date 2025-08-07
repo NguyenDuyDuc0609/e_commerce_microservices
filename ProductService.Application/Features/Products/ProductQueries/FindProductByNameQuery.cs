@@ -8,5 +8,5 @@ using System.Threading.Tasks;
 
 namespace ProductService.Application.Features.Products.ProductQueries
 {
-    public record FindProductByNameQuery : IRequest<QueryDto>;
+    public record FindProductByNameQuery(string Name) : IRequest<QueryDto>;
 }

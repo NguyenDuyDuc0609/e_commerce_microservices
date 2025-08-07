@@ -12,9 +12,9 @@ using System.Threading.Tasks;
 
 namespace ProductService.Application.Features.ProductHandlers.ProductCommandHandlers
 {
-    public class AddProductHandler(IUnitOfWork unitOfWork, ILogger<AddProductHandler> logger) : IRequestHandler<AddProductCommand, CommandDto>
+    public class AddProductHandler(IProductService productService, ILogger<AddProductHandler> logger) : IRequestHandler<AddProductCommand, CommandDto>
     {
-        private readonly IUnitOfWork _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
+        private readonly IProductService _productService = productService ?? throw new ArgumentNullException(nameof(productService));
         private readonly ILogger<AddProductHandler> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
         public async Task<CommandDto> Handle(AddProductCommand request, CancellationToken cancellationToken)
@@ -27,7 +27,6 @@ namespace ProductService.Application.Features.ProductHandlers.ProductCommandHand
                     Message = "AddProductDto cannot be null"
                 };
             }
-            await _unitOfWork.BeginTransactionAsync();
             try
             {
                 Guid categoryId = Guid.Parse(request.AddProductDto.CategoryId);
@@ -39,10 +38,9 @@ namespace ProductService.Application.Features.ProductHandlers.ProductCommandHand
                     request.AddProductDto.Brand,
                     request.AddProductDto.ImageUrl,
                     request.AddProductDto.Price);
-                var result = await _unitOfWork.Repository!.AddProduct(product);
-                if(result)
+                var result = await _productService.AddProduct(product);
+                if (result)
                 {
-                    await _unitOfWork.CommitAsync();
                     return new CommandDto
                     {
                         IsSuccess = true,
@@ -51,7 +49,6 @@ namespace ProductService.Application.Features.ProductHandlers.ProductCommandHand
                 }
                 else
                 {
-                    await _unitOfWork.Rollback();
                     _logger.LogError(
                         "Failed to add product in {HandlerName} at {TimeUtc}",
                         nameof(AddProductHandler),
@@ -66,7 +63,6 @@ namespace ProductService.Application.Features.ProductHandlers.ProductCommandHand
             }
             catch (Exception ex)
             {
-                await _unitOfWork.Rollback();
                 _logger.LogError(
                     ex,
                     "Request failure in {HandlerName} at {TimeUtc}",
