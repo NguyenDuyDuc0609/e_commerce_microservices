@@ -55,24 +55,20 @@ namespace ProductService.Api.Controllers
             var result = await _mediator.Send(new GetProductByIdQuery(productId));
             return Ok(result);
         }
-        //[HttpGet("filter-products/{brand}/{price}/{pageNumber}/{pageSize}")]
-        //[AllowAnonymous]
-        //public async Task<IActionResult> FilterProducts(string? brand, int? price, int pageNumber = 1, int pageSize = 10)
-        //{
-        //    var result = await _mediator.Send(new FilterProductsQuery(brand, price, pageNumber, pageSize));
-        //    return Ok(result);
-        //}
-        //[HttpGet("product-reviews/{productId}/{pageNumber}/{pageSize}")]
-        //[AllowAnonymous]
-        //public async Task<IActionResult> ProductReviews(Guid productId, int pageNumber = 1, int pageSize = 10)
-        //{
-        //    if (productId == Guid.Empty)
-        //    {
-        //        return BadRequest("Invalid product ID.");
-        //    }
-        //    var result = await _mediator.Send(new ProductReviewQuery(productId, pageNumber, pageSize));
-        //    return Ok(result);
-        //}
+        [HttpGet("filter-products/{brand}/{price}/{pageNumber}/{pageSize}")]
+        [AllowAnonymous]
+        public async Task<IActionResult> FilterProducts(string? brand, decimal? price, int pageNumber , int pageSize)
+        {
+            var result = await _mediator.Send(new FilterProductQuery(brand, price, pageNumber, pageSize));
+            return Ok(result);
+        }
+        [HttpGet("product-reviews/{productId}/{pageNumber}/{pageSize}")]
+        [AllowAnonymous]
+        public async Task<IActionResult> ProductReviews(string productId, int pageNumber = 1, int pageSize = 5)
+        {
+            var result = await _mediator.Send(new ReviewProductQuery(productId, pageNumber, pageSize));
+            return Ok(result);
+        }
         [HttpPost("search-product/{productName}")]
         [AllowAnonymous]
         public async Task<IActionResult> GetProductByName(string productName)
@@ -114,17 +110,13 @@ namespace ProductService.Api.Controllers
         //    }
         //    return BadRequest(result);
         //}
-        //[HttpGet("products-by-category/{categoryId}/{pageNumber}/{pageSize}")]
-        //[AllowAnonymous]
-        //public async Task<IActionResult> GetProductsByCategory(Guid categoryId, int pageNumber = 1, int pageSize = 10)
-        //{
-        //    if (categoryId == Guid.Empty)
-        //    {
-        //        return BadRequest("Invalid category ID.");
-        //    }
-        //    var result = await _mediator.Send(new GetProductsByCategoryQuery(categoryId, pageNumber, pageSize));
-        //    return Ok(result);
-        //}
+        [HttpGet("products-by-category/{categoryId}/{pageNumber}/{pageSize}")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetProductsByCategory(string categoryId, int pageNumber = 1, int pageSize = 10)
+        {
+            var result = await _mediator.Send(new ProductCategoryQuery(categoryId, pageNumber, pageSize));
+            return Ok(result);
+        }
         //[HttpGet("top-rated-products/{pageNumber}/{pageSize}")]
         //[AllowAnonymous]
         //public async Task<IActionResult> GetTopRatedProducts(int pageNumber = 1, int pageSize = 10)

@@ -8,5 +8,5 @@ using System.Threading.Tasks;
 
 namespace ProductService.Application.Features.Products.ProductQueries
 {
-    public record ReviewProductQuery : IRequest<QueryDto>;
+    public record ReviewProductQuery(string ProductId, int PageNumber, int PageSize) : IRequest<QueryDto>;
 }

@@ -8,6 +8,7 @@ using ProductService.Application.Services;
 using ProductService.Infrastructure.Persistences;
 using ProductService.Infrastructure.Repositories;
 using Serilog;
+using StackExchange.Redis;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -77,8 +78,11 @@ builder.Services.AddSwaggerGen(options =>
 builder.Services.AddStackExchangeRedisCache(options =>
 {
     options.Configuration = $"{redisHost}:{redisPort}";
-    options.InstanceName = "Auth_";
+    options.InstanceName = "Product_";
 });
+builder.Services.AddSingleton<IConnectionMultiplexer>(builder =>
+    ConnectionMultiplexer.Connect($"{redisHost}:{redisPort}")
+);
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IRepository, Repository>();
 builder.Services.AddScoped<IProductService, ProductServices>();

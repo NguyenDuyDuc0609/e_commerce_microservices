@@ -47,10 +47,6 @@ namespace ProductService.Infrastructure.Repositories
             throw new NotImplementedException();
         }
 
-        public Task<T> FilterProduct<T>(int pageNumber, int pageSize, ProductType? productType, int? price)
-        {
-            throw new NotImplementedException();
-        }
 
         public async Task<List<Product>> GetAllProducts(int pageNumber, int pageSize)
         {
@@ -95,14 +91,66 @@ namespace ProductService.Infrastructure.Repositories
             throw new NotImplementedException();
         }
 
-        public Task<bool> Review(Guid guid, string review, string username)
+        public async Task<bool> AddReview(Guid productId, string? review, string username, int rating)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var productEntity = await _context.Products.FindAsync(productId) ?? throw new InvalidOperationException("Product not found");
+                var newReview = new Review(productId, username, review, rating);
+                productEntity.UpdateRatingSummary(rating);
+                await _context.Reviews.AddAsync(newReview);
+                _context.Products.Update(productEntity);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Failed to add review", ex);
+            }
         }
 
         public Task<bool> UpdateProduct(Guid productId, string name, decimal price)
         {
             throw new NotImplementedException();
+        }
+
+        public async Task<List<Review>> GetReviewPage(Guid productId, int pageNumber, int pageSize)
+        {
+            return await _context.Reviews
+                .Where(r => r.ProductId == productId)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .OrderByDescending(r => r.CreatedAt)
+                .ToListAsync();
+        }
+
+        public async Task<List<Product>> GetProductByCategory(Guid categoryId, int pageNumber, int pageSize)
+        {
+            return await _context.Products
+                .Where(p => p.CategoryId == categoryId)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+        }
+
+        public async Task<List<Product>> FilterProduct(string? brand, decimal? price)
+        {
+            IQueryable<Product> query = _context.Products.AsQueryable();
+            if (!string.IsNullOrEmpty(brand))
+            {
+                query = query.Where(p => p.Brand == brand).AsQueryable();
+            }
+            if (price.HasValue)
+            {
+                query = query.Where(p => p.Price <= price.Value).AsQueryable();
+            }
+            return await query.ToListAsync();
+        }
+
+        public async Task<List<Product>> FilterProduct(List<Guid>? list)
+        {
+            return await _context.Products
+                .Where(p => list!.Contains(p.ProductId))
+                .ToListAsync();
         }
     }
 }

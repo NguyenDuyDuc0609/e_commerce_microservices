@@ -1,4 +1,4 @@
-﻿using MassTransit.DependencyInjection;
+﻿using MassTransit;
 using MediatR;
 using ProductService.Application.Features.Dtos;
 using System;
@@ -9,5 +9,5 @@ using System.Threading.Tasks;
 
 namespace ProductService.Application.Features.Products.ProductQueries
 {
-    public record FilterProductQuery(string? Brand, decimal? Price, int PageNumber ,int PageSize) : IRequest<QueryDto>;
+    public record ProductCategoryQuery(string CategoryId, int PageNumber, int PageSize) : IRequest<QueryDto>;
 }

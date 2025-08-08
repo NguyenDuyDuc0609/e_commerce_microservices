@@ -36,6 +36,40 @@ namespace ProductService.Application.Services
             }
         }
 
+        public async Task<bool> AddReview(Guid productId, string? review, string username, int rating)
+        {
+
+            if(review == null) return false;
+            await _unitOfWork.BeginTransactionAsync();
+            try
+            {
+                await _unitOfWork.Repository!.AddReview(productId, review, username, rating);
+                await _unitOfWork.CommitAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                await _unitOfWork.Rollback();
+                throw new Exception("Failed to add review", ex);
+            }
+        }
+
+        public async Task<List<Product>> FilterProduct(string? brand, decimal? price, List<Guid>? list, int pageNumber , int pageSize)
+        {
+            try
+            {
+                if(list == null || list.Count == 0)
+                {
+                    return await _unitOfWork.Repository!.FilterProduct(brand, price);
+                }
+                return await _unitOfWork.Repository!.FilterProduct(list);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Failed to filter products", ex);
+            }
+        }
+
         public async Task<List<Product>> GetAllProducts(int pageNumber, int pageSize)
         {
             return await _unitOfWork.Repository!.GetAllProducts(pageNumber, pageSize);
@@ -56,6 +90,37 @@ namespace ProductService.Application.Services
             if (product == null)
                 return null;
             return product;
+        }
+
+        public async Task<List<Review>> GetReviews(string productId, int pageNumber, int pageSize)
+        {
+            try
+            {
+                if(string.IsNullOrEmpty(productId) || !Guid.TryParse(productId, out Guid productGuid))
+                {
+                    throw new ArgumentException("Invalid product ID", nameof(productId));
+                }
+                var reviews = await _unitOfWork.Repository!.GetReviewPage(productGuid, pageNumber, pageSize);
+                return reviews ?? [];
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Failed to retrieve reviews", ex);
+            }
+        }
+
+        public async Task<List<Product>> ProductCateory(Guid categoryId, int pageNumber, int pageSize)
+        {
+            try
+            {
+                var products = await _unitOfWork.Repository!.GetProductByCategory(categoryId, pageNumber, pageSize);
+                return products ?? [];
+            }
+            catch(Exception ex)
+            {
+                throw new Exception("Failed to retrieve products by category", ex);
+            }
         }
     }
 }
