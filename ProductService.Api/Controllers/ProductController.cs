@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ProductService.Application.Features.Dtos;
+using ProductService.Application.Features.Products.ProductCommands;
 using ProductService.Application.Features.Products.ProductQueries;
 
 namespace ProductService.Api.Controllers
@@ -80,6 +81,13 @@ namespace ProductService.Api.Controllers
             var result = await _mediator.Send(new FindProductByNameQuery(productName));
             return Ok(result);
         }
+        [HttpPost("review-product)")]
+        [Authorize(Roles = "Customer")]
+        public async Task<IActionResult> AddReviewProduct([FromBody] ReviewDto reviewDto)
+        {
+            var result = await _mediator.Send(new ReviewCommand(reviewDto));
+            return Ok(result);
+        }
         //[HttpPut("update-product/{productId}")]
         //[Authorize(Roles = "Admin")]
         //public async Task<IActionResult> UpdateProduct(Guid productId, [FromBody] UpdateProductDto updateProductDto)
@@ -95,21 +103,13 @@ namespace ProductService.Api.Controllers
         //    }
         //    return BadRequest(result);
         //}
-        //[HttpDelete("delete-product/{productId}")]
-        //[Authorize(Roles = "Admin")]
-        //public async Task<IActionResult> DeleteProduct(Guid productId)
-        //{
-        //    if (productId == Guid.Empty)
-        //    {
-        //        return BadRequest("Invalid product ID.");
-        //    }
-        //    var result = await _mediator.Send(new DeleteProductCommand(productId));
-        //    if (result.IsSuccess)
-        //    {
-        //        return Ok(result);
-        //    }
-        //    return BadRequest(result);
-        //}
+        [HttpDelete("delete-product/{productId}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> DeleteProduct(string productId)
+        {
+            var result = await _mediator.Send(new DeleteProductCommand(productId));
+            return Ok(result);
+        }
         [HttpGet("products-by-category/{categoryId}/{pageNumber}/{pageSize}")]
         [AllowAnonymous]
         public async Task<IActionResult> GetProductsByCategory(string categoryId, int pageNumber = 1, int pageSize = 10)

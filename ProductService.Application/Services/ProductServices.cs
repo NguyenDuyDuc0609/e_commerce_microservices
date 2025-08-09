@@ -25,7 +25,7 @@ namespace ProductService.Application.Services
                 var result = await _unitOfWork.Repository!.AddProduct(product);
                 if (!result)
                     throw new InvalidOperationException("Failed to add product");
-
+                await _unitOfWork.SaveChangesAsync();
                 await _unitOfWork.CommitAsync();
                 return true;
             }
@@ -44,6 +44,7 @@ namespace ProductService.Application.Services
             try
             {
                 await _unitOfWork.Repository!.AddReview(productId, review, username, rating);
+                await _unitOfWork.SaveChangesAsync();
                 await _unitOfWork.CommitAsync();
                 return true;
             }
@@ -51,6 +52,23 @@ namespace ProductService.Application.Services
             {
                 await _unitOfWork.Rollback();
                 throw new Exception("Failed to add review", ex);
+            }
+        }
+
+        public async Task<Product> DeleteProduct(Guid productId)
+        {
+            await _unitOfWork.BeginTransactionAsync();
+            try
+            {
+                var product = await _unitOfWork.Repository!.DeleteProduct(productId) ?? throw new InvalidOperationException("Product not found");
+                await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.CommitAsync();
+                return product;
+            }
+            catch (Exception ex)
+            {
+                await _unitOfWork.Rollback();
+                throw new Exception("Failed to delete product", ex);
             }
         }
 
@@ -120,6 +138,25 @@ namespace ProductService.Application.Services
             catch(Exception ex)
             {
                 throw new Exception("Failed to retrieve products by category", ex);
+            }
+        }
+
+        public async Task<bool> UpdateProduct(Guid productId, string? name, decimal? price, string? description, string? slug, string? brand, string? imgUrl)
+        {
+            try
+            {
+                var result = await _unitOfWork.Repository!.UpdateProduct(productId, name, price, description, slug, brand, imgUrl);
+                if (!result)
+                {
+                    throw new InvalidOperationException("Failed to update product");
+                }
+                await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.CommitAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Failed to update product", ex);
             }
         }
     }

@@ -47,14 +47,14 @@ namespace ProductService.Domain.Entities
             UpdatedAt = DateTime.UtcNow;
             CreateRatingSummary();
         }
-        public void UpdateProduct(string name, string description, string slug, string brand, string imageUrl, decimal price)
+        public void UpdateProduct(string? name, string? description, string? slug, string? brand, string? imageUrl, decimal price)
         {
-            Name = name;
-            Description = description;
-            Slug = slug;
-            Brand = brand;
-            ImageUrl = imageUrl;
-            Price = price;
+            Name = name ?? Name;
+            Description = description ?? Description;
+            Slug = slug ?? Slug;
+            Brand = brand?? Brand;
+            ImageUrl = imageUrl ?? ImageUrl;
+            Price = price > 0 ? price : Price;
             UpdatedAt = DateTime.UtcNow;
         }
         public void Deactivate()

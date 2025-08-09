@@ -32,21 +32,6 @@ namespace ProductService.Infrastructure.Repositories
             }
         }
 
-        public Task<bool> AddSKU(Guid guid, string sku, string description, decimal price, int stock)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<bool> DeleteProduct(Guid productId)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<bool> DeleteProduct<T>(Guid productId)
-        {
-            throw new NotImplementedException();
-        }
-
 
         public async Task<List<Product>> GetAllProducts(int pageNumber, int pageSize)
         {
@@ -81,16 +66,6 @@ namespace ProductService.Infrastructure.Repositories
             return product as T;
         }
 
-        public Task<T> ProductReview<T>(int pageNumber, int pageSize, Guid productId)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<bool> Rating(Guid guid, int rating)
-        {
-            throw new NotImplementedException();
-        }
-
         public async Task<bool> AddReview(Guid productId, string? review, string username, int rating)
         {
             try
@@ -108,10 +83,6 @@ namespace ProductService.Infrastructure.Repositories
             }
         }
 
-        public Task<bool> UpdateProduct(Guid productId, string name, decimal price)
-        {
-            throw new NotImplementedException();
-        }
 
         public async Task<List<Review>> GetReviewPage(Guid productId, int pageNumber, int pageSize)
         {
@@ -151,6 +122,22 @@ namespace ProductService.Infrastructure.Repositories
             return await _context.Products
                 .Where(p => list!.Contains(p.ProductId))
                 .ToListAsync();
+        }
+
+        public async Task<Product> DeleteProduct(Guid productId)
+        {
+            var product = await _context.Products.FindAsync(productId) ?? throw new InvalidOperationException("Product not found");
+            product.Deactivate();
+            _context.Products.Update(product);
+            return product;
+        }
+
+        public async Task<bool> UpdateProduct(Guid productId, string? name, decimal? price, string? description, string? slug, string? brand, string? imgUrl)
+        {
+            var product = await _context.Products.FindAsync(productId) ?? throw new InvalidOperationException("Product not found");
+            product.UpdateProduct(name, description, slug, brand, imgUrl, price ?? product.Price);
+            _context.Products.Update(product);
+            return true;
         }
     }
 }

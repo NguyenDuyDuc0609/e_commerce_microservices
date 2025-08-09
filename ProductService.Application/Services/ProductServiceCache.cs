@@ -232,8 +232,8 @@ namespace ProductService.Application.Services
                 }
                 else
                 {
-                    await _redisDb.KeyExpireAsync(brandKey, TimeSpan.FromMinutes(30));
                     await _redisDb.SetAddAsync(brandKey, []);
+                    await _redisDb.KeyExpireAsync(brandKey, TimeSpan.FromMinutes(30));
                 }
                 return;
             }
@@ -256,8 +256,8 @@ namespace ProductService.Application.Services
                 }
                 else
                 {
-                    await _redisDb.KeyExpireAsync(priceKey, TimeSpan.FromMinutes(30));
                     await _redisDb.SetAddAsync(priceKey, []);
+                    await _redisDb.KeyExpireAsync(priceKey, TimeSpan.FromMinutes(30));
                 }
             }
             catch (Exception ex)
@@ -285,12 +285,51 @@ namespace ProductService.Application.Services
                 var start = (pageNumber - 1) * pageSize;
                 var end = start + pageSize - 1;
                 var setIds= await _redisDb.SortedSetRangeByRankAsync(finalKey, start, end);
+                await _redisDb.KeyDeleteAsync(finalKey);
                 return  setIds.Select(id => Guid.Parse(id.ToString())).ToList() ?? [];
 
             }
             catch(Exception ex)
             {
                 throw new Exception("Failed to filter products", ex);
+            }
+        }
+
+        public async Task<Product> DeleteProduct(Guid productId)
+        {
+            try
+            {
+                var product = await _productService.DeleteProduct(productId) ?? throw new InvalidOperationException("Product not found");
+                var productIdString = productId.ToString();
+                var brandKey = $"product:brand:{product.Brand.ToLower()}";
+                var priceKey = $"product:price:{product.Price}";
+                await _redisDb.SetRemoveAsync(brandKey, productIdString);
+                await _redisDb.SetRemoveAsync(priceKey, productIdString);
+                return product;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Failed to delete product", ex);
+            }
+        }
+
+        public async Task<bool> UpdateProduct(Guid productId, string? name, decimal? price, string? description, string? slug, string? brand, string? imgUrl)
+        {
+            if (productId == Guid.Empty)
+            {
+                throw new ArgumentException("Product ID cannot be empty", nameof(productId));
+            }
+            if(price <= 0)
+            {
+                throw new ArgumentException("Product price must be greater than zero", nameof(price));
+            }
+            try
+            {
+                return await _productService.UpdateProduct(productId, name, price, description, slug, brand, imgUrl);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Failed to update product", ex);
             }
         }
     }

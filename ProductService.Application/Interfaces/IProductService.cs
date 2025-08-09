@@ -18,5 +18,7 @@ namespace ProductService.Application.Interfaces
         Task<bool> AddReview(Guid productId, string? review, string username, int rating);
         Task<List<Product>> ProductCateory(Guid categoryId, int pageNumber, int pageSize);
         Task<List<Product>> FilterProduct(string? brand, decimal? price, List<Guid>? list, int pageNumber, int pageSize);
+        Task<Product> DeleteProduct(Guid productId);
+        Task<bool> UpdateProduct(Guid productId, string? name, decimal? price, string? description, string? slug, string? brand, string? imgUrl);
     }
 }
