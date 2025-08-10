@@ -57,14 +57,20 @@ namespace ProductService.Application.Services
             await SetNullProductId(productIdString);
             return default;
         }
-        public async Task<bool> AddProduct(Product product)
+        public async Task<string> AddProduct(Product product)
         {
             var result = await _productService.AddProduct(product);
-            if (result)
+            var cacheKey = $"category:{result.ToLower()}";
+            if (!await _redisDb.KeyExistsAsync(cacheKey))
             {
-                return true;
+                await _redisDb.SetAddAsync(cacheKey, product.ProductId.ToString());
+                await _redisDb.KeyExpireAsync(cacheKey, TimeSpan.FromMinutes(60));
             }
-            return false;
+            else
+            {
+                await _redisDb.SetAddAsync(cacheKey, product.ProductId.ToString());
+            }
+            return result;
         }
         public async Task<Product?> GetProductByName(string name)
         {
@@ -407,7 +413,28 @@ namespace ProductService.Application.Services
             }
         }
 
-        public Task<bool> AddCategory(CategoryDto categoryDto)
+        public async Task<bool> AddCategory(Category category)
+        {
+            try
+            {
+                var result = await _productService.AddCategory(category);
+                if (result)
+                {
+                    var cacheKey = $"category:{category.Slug.ToLower()}";
+                    await _redisDb.SetAddAsync(cacheKey, Array.Empty<RedisValue>());
+                    await _redisDb.KeyExpireAsync(cacheKey, TimeSpan.FromMinutes(60));
+                    return true;
+                }
+                return false;
+            }
+            catch
+            (Exception ex)
+            {
+                throw new Exception("Failed to add category", ex);
+            }
+        }
+
+        public async Task<List<Product>> ProductBySlug(string slug)
         {
             throw new NotImplementedException();
         }

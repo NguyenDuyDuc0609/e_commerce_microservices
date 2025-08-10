@@ -13,7 +13,7 @@ namespace ProductService.Application.Services
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
-        public async Task<bool> AddProduct(Product product)
+        public async Task<string> AddProduct(Product product)
         {
             if (product == null)
             {
@@ -24,11 +24,9 @@ namespace ProductService.Application.Services
             try
             {
                 var result = await _unitOfWork.Repository!.AddProduct(product);
-                if (!result)
-                    throw new InvalidOperationException("Failed to add product");
                 await _unitOfWork.SaveChangesAsync();
                 await _unitOfWork.CommitAsync();
-                return true;
+                return result;
             }
             catch(Exception ex)
             {
@@ -193,7 +191,23 @@ namespace ProductService.Application.Services
             }
         }
 
-        public Task<bool> AddCategory(CategoryDto categoryDto)
+        public async Task<bool> AddCategory(Category category)
+        {
+            try
+            {
+                if (category == null)
+                {
+                    throw new ArgumentNullException(nameof(category), "Category cannot be null");
+                }
+                return await _unitOfWork.Repository!.AddCategory(category);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Failed to add category", ex);
+            }
+        }
+
+        public async Task<List<Product>> ProductBySlug(string slug)
         {
             throw new NotImplementedException();
         }

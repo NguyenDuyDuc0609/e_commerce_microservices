@@ -18,13 +18,17 @@ namespace ProductService.Infrastructure.Repositories
     public class Repository(ProductContext context) : IRepository
     {
         private readonly ProductContext _context = context;
-        public async Task<bool> AddProduct(Product product)
+        public async Task<string> AddProduct(Product product)
         {
             try
             {
                 await _context.Products.AddAsync(product);
 
-                return true;
+                var categorySlug = await _context.Categories
+                    .Where(c => c.CategoryId == product.CategoryId)
+                    .Select(c => c.Slug)
+                    .FirstOrDefaultAsync();
+                return categorySlug ?? throw new InvalidOperationException("Category not found for the product");
             }
             catch (Exception ex)
             {
@@ -161,18 +165,81 @@ namespace ProductService.Infrastructure.Repositories
             return sku;
         }
 
-        public async Task<bool> AddCategory(string name, string description)
+        public async Task<bool> AddCategory(Category category)
         {
-            var category = new Category(name, description, true);
-            var exitsCategory = await _context.Categories
-                .Where(c => c.Name == name)
-                .FirstOrDefaultAsync();
-            if (exitsCategory != null)
+            if (category == null)
             {
-                throw new InvalidOperationException("Category already exists");
+                throw new ArgumentNullException(nameof(category), "Category cannot be null");
             }
             await _context.Categories.AddAsync(category);
             return true;
+        }
+
+        public async Task<List<ProductQueryDto>> ProductBySlug(string slug)
+        {
+            var categoryId = await _context.Categories
+                .Where(c => c.Slug == slug)
+                .Select(c => c.CategoryId)
+                .FirstOrDefaultAsync();
+            if (categoryId == Guid.Empty)
+                throw new InvalidOperationException("Category not found for the given slug");
+            var products = await _context.Products.Where(p => p.CategoryId == categoryId)
+                .Select(p => new ProductQueryDto
+                {
+                    ProductId = p.ProductId,
+                    Name = p.Name,
+                    Price = p.Price,
+                    Description = p.Description,
+                    Slug = p.Slug,
+                    Brand = p.Brand,
+                    ImageUrl = p.ImageUrl,
+                    SKUDtos = p.SKUs.Select(s => new SKUDto
+                    {
+                        SKUCode = s.SKUCode,
+                        Price = s.Price,
+                        StockQuantity = s.StockQuantity,
+                        ImageUrl = s.ImageUrl,
+                        Weight = s.Weight
+                    }).ToList(),
+                })
+                .ToListAsync();
+            if (products == null || products.Count == 0)
+            {
+                throw new InvalidOperationException("No products found for the given slug");
+            }
+            return products;
+        }
+
+        public async Task<List<ProductQueryDto>> ProductBySlug(List<Guid> productId)
+        {
+            try
+            {
+                var products = await _context.Products.Where(p => productId.Contains(p.ProductId))
+                    .Select(p => new ProductQueryDto
+                    {
+                        ProductId = p.ProductId,
+                        Name = p.Name,
+                        Price = p.Price,
+                        Description = p.Description,
+                        Slug = p.Slug,
+                        Brand = p.Brand,
+                        ImageUrl = p.ImageUrl,
+                        SKUDtos = p.SKUs.Select(s => new SKUDto
+                        {
+                            SKUCode = s.SKUCode,
+                            Price = s.Price,
+                            StockQuantity = s.StockQuantity,
+                            ImageUrl = s.ImageUrl,
+                            Weight = s.Weight
+                        }).ToList(),
+                    })
+                    .ToListAsync();
+                return products ?? [];
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Failed to retrieve products by slug", ex);
+            }
         }
     }
 }

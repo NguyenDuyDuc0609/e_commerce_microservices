@@ -39,12 +39,12 @@ namespace ProductService.Application.Features.ProductHandlers.ProductCommandHand
                     request.AddProductDto.ImageUrl,
                     request.AddProductDto.Price);
                 var result = await _productService.AddProduct(product);
-                if (result)
+                if (result != null || !string.IsNullOrEmpty(result))
                 {
                     return new CommandDto
                     {
                         IsSuccess = true,
-                        Message = "Product added successfully"
+                        Message = "Product added successfully",
                     };
                 }
                 else

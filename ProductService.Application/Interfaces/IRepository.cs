@@ -11,8 +11,8 @@ namespace ProductService.Application.Interfaces
 {
     public interface IRepository
     {
-        Task<bool> AddCategory(string name, string description);
-        Task<bool> AddProduct(Product product);
+        Task<bool> AddCategory(Category category);
+        Task<string> AddProduct(Product product);
         Task<bool> UpdateProduct(Guid productId, string? name, decimal? price, string? description, string? slug, string? brand, string? imgUrl);
         Task<Product> DeleteProduct(Guid productId);
         Task<T?> GetProductById<T>(Guid productId) where T : Product;
@@ -25,5 +25,7 @@ namespace ProductService.Application.Interfaces
         Task<List<Product>> FilterProduct(List<Guid>? list);
         Task<bool> AddSKU(Guid productId, string? skuCode, decimal price, int stockQuantity, string? imageUrl, decimal? weight);
         Task<List<SKUDto>> GetSKUsByProductId(Guid productId);
+        Task<List<ProductQueryDto>> ProductBySlug(string slug);
+        Task<List<ProductQueryDto>> ProductBySlug(List<Guid> productId);
     }
 }

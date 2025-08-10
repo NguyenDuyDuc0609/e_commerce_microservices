@@ -12,7 +12,7 @@ namespace ProductService.Api.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public class ProductController(IMediator mediator, ILogger<ProductController> logger) : ControllerBase
+    public class ProductController(IMediator mediator) : ControllerBase
     {
         private readonly IMediator _mediator = mediator;
 
@@ -65,6 +65,16 @@ namespace ProductService.Api.Controllers
             var result = await _mediator.Send(new FilterProductQuery(brand, price, pageNumber, pageSize));
             return Ok(result);
         }
+
+        [HttpGet("products-by-slug/{slug}/{pageNumber}/{pageSize}")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetProductsBySlug(string slug, int pageNumber = 1, int pageSize = 10)
+        {
+            var result = await _mediator.Send(new GetProductBySlugQuery(slug, pageNumber, pageSize));
+            return Ok(result);
+        }
+
+
         [HttpGet("product-reviews/{productId}/{pageNumber}/{pageSize}")]
         [AllowAnonymous]
         public async Task<IActionResult> ProductReviews(string productId, int pageNumber = 1, int pageSize = 5)
