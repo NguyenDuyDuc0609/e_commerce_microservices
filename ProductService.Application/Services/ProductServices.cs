@@ -1,4 +1,5 @@
-﻿using ProductService.Application.Interfaces;
+﻿using ProductService.Application.Features.Dtos;
+using ProductService.Application.Interfaces;
 using ProductService.Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -55,11 +56,13 @@ namespace ProductService.Application.Services
             }
         }
 
+        
+
         public async Task<Product> DeleteProduct(Guid productId)
         {
-            await _unitOfWork.BeginTransactionAsync();
             try
             {
+                await _unitOfWork.BeginTransactionAsync();
                 var product = await _unitOfWork.Repository!.DeleteProduct(productId) ?? throw new InvalidOperationException("Product not found");
                 await _unitOfWork.SaveChangesAsync();
                 await _unitOfWork.CommitAsync();
@@ -145,6 +148,7 @@ namespace ProductService.Application.Services
         {
             try
             {
+                await _unitOfWork.BeginTransactionAsync();
                 var result = await _unitOfWork.Repository!.UpdateProduct(productId, name, price, description, slug, brand, imgUrl);
                 if (!result)
                 {
@@ -158,6 +162,40 @@ namespace ProductService.Application.Services
             {
                 throw new Exception("Failed to update product", ex);
             }
+        }
+        public async Task<bool> AddSKU(Guid productId, string? skuCode, decimal price, int stockQuantity, string? imageUrl, decimal? weight)
+        {
+            try
+            {
+                await _unitOfWork.BeginTransactionAsync();
+                var result = await _unitOfWork.Repository!.AddSKU(productId, skuCode, price, stockQuantity, imageUrl, weight);
+                await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.CommitAsync();
+                return result;
+            }
+            catch (Exception ex)
+            {
+                await _unitOfWork.Rollback();
+                throw new Exception("Failed to add SKU", ex);
+            }
+        }
+
+        public async Task<List<SKUDto>> GetSKUs(Guid ProductId)
+        {
+            try
+            {
+                var skus = await _unitOfWork.Repository!.GetSKUsByProductId(ProductId);
+                return skus ?? [];
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Failed to retrieve SKUs", ex);
+            }
+        }
+
+        public Task<bool> AddCategory(CategoryDto categoryDto)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -15,14 +15,16 @@ namespace ProductService.Api.Controllers
     public class ProductController(IMediator mediator, ILogger<ProductController> logger) : ControllerBase
     {
         private readonly IMediator _mediator = mediator;
-        private readonly ILogger<ProductController> _logger = logger;
-        [HttpGet("test-product-api")]
-        [AllowAnonymous]
-        public IActionResult TestProductApi()
+
+
+        [HttpPost("add-category")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> AddCategory([FromBody] CategoryDto categoryDto)
         {
-            _logger.LogInformation("Product API is working!");
-            return Ok("Product API is working!");
+            var result = await _mediator.Send(categoryDto);
+            return Ok(result);
         }
+
         [HttpPost("add-product")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> AddProduct([FromBody] AddProductDto addProductDto)
@@ -38,7 +40,7 @@ namespace ProductService.Api.Controllers
             return Ok(result);
         }
         [HttpGet("get-all-products/{pageNumber}/{pageSize}")]
-        [Authorize(Roles ="Admin")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetAllProducts(int pageNumber = 1, int pageSize = 10)
         {
             var pagination = new AdminGetProduct
@@ -58,7 +60,7 @@ namespace ProductService.Api.Controllers
         }
         [HttpGet("filter-products/{brand}/{price}/{pageNumber}/{pageSize}")]
         [AllowAnonymous]
-        public async Task<IActionResult> FilterProducts(string? brand, decimal? price, int pageNumber , int pageSize)
+        public async Task<IActionResult> FilterProducts(string? brand, decimal? price, int pageNumber, int pageSize)
         {
             var result = await _mediator.Send(new FilterProductQuery(brand, price, pageNumber, pageSize));
             return Ok(result);
@@ -124,5 +126,23 @@ namespace ProductService.Api.Controllers
         //    var result = await _mediator.Send(new GetTopRatedProductsQuery(pageNumber, pageSize));
         //    return Ok(result);
         //}
+        [HttpGet("add-SKU")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> AddSKU([FromBody] SKUDto addSKUCommand)
+        {
+            if (addSKUCommand == null || string.IsNullOrEmpty(addSKUCommand.SKUCode) || addSKUCommand.Price <= 0)
+            {
+                return BadRequest("Invalid SKU data.");
+            }
+            var result = await _mediator.Send(addSKUCommand);
+            return Ok(result);
+        }
+        [HttpGet("get-SKUs/{productId}")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetSKUs(string productId)
+        {
+            var result = await _mediator.Send(new GetSKUQuery(productId));
+            return Ok(result);
+        }
     }
 }

@@ -11,6 +11,7 @@ namespace ProductService.Application.Interfaces
 {
     public interface IRepository
     {
+        Task<bool> AddCategory(string name, string description);
         Task<bool> AddProduct(Product product);
         Task<bool> UpdateProduct(Guid productId, string? name, decimal? price, string? description, string? slug, string? brand, string? imgUrl);
         Task<Product> DeleteProduct(Guid productId);
@@ -22,5 +23,7 @@ namespace ProductService.Application.Interfaces
         Task<List<Review>> GetReviewPage(Guid productId, int pageNumber, int pageSize); 
         Task<List<Product>> FilterProduct(string? brand, decimal? price);
         Task<List<Product>> FilterProduct(List<Guid>? list);
+        Task<bool> AddSKU(Guid productId, string? skuCode, decimal price, int stockQuantity, string? imageUrl, decimal? weight);
+        Task<List<SKUDto>> GetSKUsByProductId(Guid productId);
     }
 }

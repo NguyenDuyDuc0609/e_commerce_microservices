@@ -139,5 +139,40 @@ namespace ProductService.Infrastructure.Repositories
             _context.Products.Update(product);
             return true;
         }
+
+        public Task<bool> AddSKU(Guid productId, string? skuCode, decimal price, int stockQuantity, string? imageUrl, decimal? weight)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<List<SKUDto>> GetSKUsByProductId(Guid productId)
+        {
+            var sku = await _context.SKUs
+                .Where(s => s.ProductId == productId)
+                .Select(s => new SKUDto
+                {
+                    SKUCode = s.SKUCode,
+                    Price = s.Price,
+                    StockQuantity = s.StockQuantity,
+                    ImageUrl = s.ImageUrl,
+                    Weight = s.Weight
+                })
+                .ToListAsync();
+            return sku;
+        }
+
+        public async Task<bool> AddCategory(string name, string description)
+        {
+            var category = new Category(name, description, true);
+            var exitsCategory = await _context.Categories
+                .Where(c => c.Name == name)
+                .FirstOrDefaultAsync();
+            if (exitsCategory != null)
+            {
+                throw new InvalidOperationException("Category already exists");
+            }
+            await _context.Categories.AddAsync(category);
+            return true;
+        }
     }
 }

@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ProductService.Application.Features.Products.ProductCommands
+namespace ProductService.Application.Features.Products.ProductQueries
 {
-    public record AddSKUCommand(SKUDto SKUDto) : IRequest<CommandDto>;
+    public record GetSKUQuery(string ProductId) : IRequest<QueryDto>;
 }

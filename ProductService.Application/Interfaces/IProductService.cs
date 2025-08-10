@@ -1,4 +1,5 @@
-﻿using ProductService.Domain.Entities;
+﻿using ProductService.Application.Features.Dtos;
+using ProductService.Domain.Entities;
 using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
@@ -20,5 +21,8 @@ namespace ProductService.Application.Interfaces
         Task<List<Product>> FilterProduct(string? brand, decimal? price, List<Guid>? list, int pageNumber, int pageSize);
         Task<Product> DeleteProduct(Guid productId);
         Task<bool> UpdateProduct(Guid productId, string? name, decimal? price, string? description, string? slug, string? brand, string? imgUrl);
+        Task<bool> AddSKU(Guid productId, string? skuCode, decimal price, int stockQuantity, string? imageUrl, decimal? weight);
+        Task<List<SKUDto>> GetSKUs(Guid ProductId);
+        Task<bool> AddCategory(CategoryDto categoryDto);
     }
 }

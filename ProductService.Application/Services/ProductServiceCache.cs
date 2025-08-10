@@ -9,6 +9,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using StackExchange.Redis;
+using ProductService.Application.Features.Dtos;
 
 namespace ProductService.Application.Services
 {
@@ -331,6 +332,84 @@ namespace ProductService.Application.Services
             {
                 throw new Exception("Failed to update product", ex);
             }
+        }
+
+        public async Task<bool> AddSKU(Guid productId, string? skuCode, decimal price, int stockQuantity, string? imageUrl, decimal? weight)
+        {
+            try
+            {
+                var result = await _productService.AddSKU(productId, skuCode, price, stockQuantity, imageUrl, weight);
+                if (result)
+                {
+                    await CacheUpdateSKUProduct(productId);
+                    return true;
+                }
+                return false;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Failed to add SKU", ex);
+            }
+        }
+        private async Task CacheUpdateSKUProduct(Guid ProductId)
+        {
+            var keySku = $"product:{ProductId}:skus";
+            if (await _redisDb.KeyExistsAsync(keySku))
+            {
+                await _redisDb.KeyDeleteAsync(keySku);
+            }
+            var skus = await _productService.GetSKUs(ProductId);
+            if (skus != null && skus.Count > 0)
+            {
+                var skuEntries = skus.Select(sku => new SortedSetEntry(JsonSerializer.Serialize(sku), 0)).ToArray();
+                await _redisDb.SortedSetAddAsync(keySku, skuEntries);
+                await _redisDb.KeyExpireAsync(keySku, TimeSpan.FromMinutes(30));
+            }
+            else
+            {
+                await _redisDb.SortedSetAddAsync(keySku, []);
+                await _redisDb.KeyExpireAsync(keySku, TimeSpan.FromMinutes(30));
+            }
+        }
+        public async Task<List<SKUDto>> GetSKUs(Guid ProductId)
+        {
+            try
+            {
+                var keySku = $"product:{ProductId}:skus";
+                if (!await _redisDb.KeyExistsAsync(keySku))
+                {
+                    var skus = await _productService.GetSKUs(ProductId);
+                    if (skus != null && skus.Count > 0)
+                    {
+                        var skuEntries = skus.Select(sku => new SortedSetEntry(JsonSerializer.Serialize(sku), 0)).ToArray();
+                        await _redisDb.SortedSetAddAsync(keySku, skuEntries);
+                        await _redisDb.KeyExpireAsync(keySku, TimeSpan.FromMinutes(30));
+                        return skus;
+                    }
+                    else
+                    {
+                        await _redisDb.SortedSetAddAsync(keySku, []);
+                        await _redisDb.KeyExpireAsync(keySku, TimeSpan.FromMinutes(30));
+                        return [];
+                    }
+                }
+                var skuValues = await _redisDb.SortedSetRangeByRankAsync(keySku);
+                if (skuValues.Length == 0)
+                {
+                    return [];
+                }
+                var skusList = skuValues.Select(s => JsonSerializer.Deserialize<SKUDto>(s!)).Where(s => s != null).ToList();
+                return skusList!;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Failed to retrieve SKUs", ex);
+            }
+        }
+
+        public Task<bool> AddCategory(CategoryDto categoryDto)
+        {
+            throw new NotImplementedException();
         }
     }
 }

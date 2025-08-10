@@ -8,5 +8,7 @@ namespace ProductService.Domain.Enums
 {
     public enum DiscountType
     {
+        Percentage,
+        Amount
     }
 }
