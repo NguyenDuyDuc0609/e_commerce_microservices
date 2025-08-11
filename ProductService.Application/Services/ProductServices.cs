@@ -54,8 +54,7 @@ namespace ProductService.Application.Services
             }
         }
 
-        
-
+      
         public async Task<Product> DeleteProduct(Guid productId)
         {
             try
@@ -207,9 +206,18 @@ namespace ProductService.Application.Services
             }
         }
 
-        public async Task<List<Product>> ProductBySlug(string slug)
+        public async Task<List<ProductQueryDto>> ProductBySlug(string? slug, List<Guid>? productIds, int pageNumber, int pageSize)
         {
-            throw new NotImplementedException();
+            try
+            {
+                if (slug != null)
+                    return await _unitOfWork.Repository!.ProductBySlug(slug);
+                return await _unitOfWork.Repository!.ProductBySlug(productIds!);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Failed to retrieve products by slug", ex);
+            }
         }
     }
 }

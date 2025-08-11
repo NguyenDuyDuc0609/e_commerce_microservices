@@ -30,7 +30,22 @@ namespace ProductService.Application.Features.ProductHandlers.ProductQueryHandle
             }
             try
             {
-
+                var result = await _productService.ProductBySlug(slug: request.Slug, productIds: null, request.PageNumber, request.PageSize);
+                if(result.Count == 0)
+                {
+                    return new QueryDto
+                    {
+                        IsSuccess = false,
+                        Message = "No products found for the specified slug.",
+                        Data = null
+                    };
+                }
+                return new QueryDto
+                {
+                    IsSuccess = true,
+                    Message = "Products retrieved successfully.",
+                    Data = result
+                };
             }
             catch (Exception ex)
             {

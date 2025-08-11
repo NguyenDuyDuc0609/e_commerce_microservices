@@ -70,7 +70,7 @@ namespace ProductService.Api.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> GetProductsBySlug(string slug, int pageNumber = 1, int pageSize = 10)
         {
-            var result = await _mediator.Send(new GetProductBySlugQuery(slug, pageNumber, pageSize));
+            var result = await _mediator.Send(new ProductBySlugQuery(slug, pageNumber, pageSize));
             return Ok(result);
         }
 

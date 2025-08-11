@@ -24,6 +24,6 @@ namespace ProductService.Application.Interfaces
         Task<bool> AddSKU(Guid productId, string? skuCode, decimal price, int stockQuantity, string? imageUrl, decimal? weight);
         Task<List<SKUDto>> GetSKUs(Guid ProductId);
         Task<bool> AddCategory(Category category);
-        Task<List<Product>> ProductBySlug(string slug);
+        Task<List<ProductQueryDto>> ProductBySlug(string? slug, List<Guid>? productIds, int pageNumber, int pageSize);
     }
 }

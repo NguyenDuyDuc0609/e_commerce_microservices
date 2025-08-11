@@ -434,9 +434,62 @@ namespace ProductService.Application.Services
             }
         }
 
-        public async Task<List<Product>> ProductBySlug(string slug)
+        public async Task<List<ProductQueryDto>> ProductBySlug(string? slug, List<Guid>? productIds, int pageNumber, int pageSize)
         {
-            throw new NotImplementedException();
+            var keySlug = $"product:slug:{slug!.ToLower()}";
+            try
+            {
+                if (await _redisDb.KeyExistsAsync(keySlug))
+                {
+                    var keyType = await _redisDb.KeyTypeAsync(keySlug);
+
+                    var start = (pageNumber - 1) * pageSize;
+                    var stop = start + pageSize - 1;
+                    var listProductIds = new List<Guid>();
+
+                    if (keyType == RedisType.String)
+                    {
+                        return [];
+                    }
+                    if (keyType == RedisType.SortedSet)
+                    {
+                        var productValues = await _redisDb.SortedSetRangeByRankAsync(
+                            keySlug,
+                            start,
+                            stop,
+                            Order.Descending);
+                        listProductIds = productValues
+                            .Select(p => JsonSerializer.Deserialize<ProductQueryDto>(p!))
+                            .Where(p => p != null)
+                            .Select(p => p!.ProductId)
+                            .ToList();
+                        return await _productService.ProductBySlug(slug: null, listProductIds, pageNumber, pageSize);
+
+                    }
+                }
+                var products = await _productService.ProductBySlug(slug: slug, productIds: null, pageNumber, pageSize);
+
+                if (products is { Count: > 0 })
+                {
+                    var productEntries = products
+                        .Select(p => new SortedSetEntry(JsonSerializer.Serialize(p), (double)p.Price))
+                        .ToArray();
+
+                    await _redisDb.SortedSetAddAsync(keySlug, productEntries);
+                }
+                else
+                {
+                    await _redisDb.StringSetAsync(keySlug, string.Empty);
+                }
+
+                await _redisDb.KeyExpireAsync(keySlug, TimeSpan.FromMinutes(30));
+
+                return products ?? [];
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Failed to get products by slug", ex);
+            }
         }
     }
 }
