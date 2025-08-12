@@ -22,8 +22,8 @@ namespace CartService.Infrastructure.Persistence
             modelBuilder.Entity<CartItem>()
                 .HasKey(ci => ci.CartItemId);
             modelBuilder.Entity<Cart>()
-                .HasMany(c => c.Items)
-                .WithOne()
+                .HasMany(c => c.CartItems)
+                .WithOne(ci => ci.Cart)
                 .HasForeignKey(ci => ci.CartId)
                 .OnDelete(DeleteBehavior.Cascade);
             modelBuilder.Entity<Cart>()

@@ -18,7 +18,7 @@ namespace CartService.Domain.Entities
         public StatusItem StatusItem { get; private set; } = StatusItem.InStock;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime UpdatedAt { get; private set; } = DateTime.UtcNow;
-
+        public Cart Cart { get; set; } = null!;
         internal void UpdateQuantity(int quantity)
         {
             this.Quantity = quantity;

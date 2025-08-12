@@ -61,7 +61,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CartService", "CartService"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OrderService.Api", "OrderSerice.Api\OrderService.Api.csproj", "{E548584D-9910-43B2-BEC9-D077B0CB532C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OrderSeevice.Application", "OrderSeevice.Application\OrderSeevice.Application.csproj", "{6C238FE0-6123-4D68-80B1-2FBF0EEDBD95}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OrderService.Application", "OrderSeevice.Application\OrderService.Application.csproj", "{6C238FE0-6123-4D68-80B1-2FBF0EEDBD95}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OrderService.Domain", "OrderService.Domain\OrderService.Domain.csproj", "{95C86E86-A4CE-4D3F-BE74-844E595AD548}"
 EndProject

@@ -17,10 +17,10 @@
 
   <ItemGroup>
     <Folder Include="Comsumers\" />
-    <Folder Include="Repositories\" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\CartService.Application\CartService.Application.csproj" />
     <ProjectReference Include="..\CartService.Domian\CartService.Domain.csproj" />
   </ItemGroup>
 
