@@ -59,29 +59,29 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "OrderService", "OrderServic
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CartService", "CartService", "{DF5EFCF2-204A-4513-AA48-9FE4411161F9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrderSerice.Api", "OrderSerice.Api\OrderSerice.Api.csproj", "{E548584D-9910-43B2-BEC9-D077B0CB532C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OrderService.Api", "OrderSerice.Api\OrderService.Api.csproj", "{E548584D-9910-43B2-BEC9-D077B0CB532C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrderSeevice.Application", "OrderSeevice.Application\OrderSeevice.Application.csproj", "{6C238FE0-6123-4D68-80B1-2FBF0EEDBD95}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OrderSeevice.Application", "OrderSeevice.Application\OrderSeevice.Application.csproj", "{6C238FE0-6123-4D68-80B1-2FBF0EEDBD95}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrderService.Domain", "OrderService.Domain\OrderService.Domain.csproj", "{95C86E86-A4CE-4D3F-BE74-844E595AD548}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OrderService.Domain", "OrderService.Domain\OrderService.Domain.csproj", "{95C86E86-A4CE-4D3F-BE74-844E595AD548}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrderService.Infrastructure", "OrderService.Infrastructure\OrderService.Infrastructure.csproj", "{EFEF9B0D-C3E1-47F6-9EB9-7C721FCC0651}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OrderService.Infrastructure", "OrderService.Infrastructure\OrderService.Infrastructure.csproj", "{EFEF9B0D-C3E1-47F6-9EB9-7C721FCC0651}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CartSercvice.Api", "CartSercvice.Api\CartSercvice.Api.csproj", "{E2C5A4CD-BE2C-4655-9CB7-3F0C399D8CD9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CartSercvice.Api", "CartSercvice.Api\CartSercvice.Api.csproj", "{E2C5A4CD-BE2C-4655-9CB7-3F0C399D8CD9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CartService.Domain", "CartService.Domian\CartService.Domain.csproj", "{0A37CCA7-AB7D-45F3-9D20-D6C07F46D86F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CartService.Domain", "CartService.Domian\CartService.Domain.csproj", "{0A37CCA7-AB7D-45F3-9D20-D6C07F46D86F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CartService.Infrastructure", "CartService.Infrastructure\CartService.Infrastructure.csproj", "{C94C5700-9BD0-41F5-B318-DB3AD7B7B359}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CartService.Infrastructure", "CartService.Infrastructure\CartService.Infrastructure.csproj", "{C94C5700-9BD0-41F5-B318-DB3AD7B7B359}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CartService.Application", "CartService.Application\CartService.Application.csproj", "{18D16DC3-FCE3-4F2B-993F-92C99DA3A5DC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CartService.Application", "CartService.Application\CartService.Application.csproj", "{18D16DC3-FCE3-4F2B-993F-92C99DA3A5DC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaymentService.Api", "PaymentService.Api\PaymentService.Api.csproj", "{FE45F7C2-8CC3-4B27-9ACE-D2C290B741B2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PaymentService.Api", "PaymentService.Api\PaymentService.Api.csproj", "{FE45F7C2-8CC3-4B27-9ACE-D2C290B741B2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaymentService.Domain", "PaymentService.Domain\PaymentService.Domain.csproj", "{292872F9-0EE7-41D2-BD16-B3D31B876634}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PaymentService.Domain", "PaymentService.Domain\PaymentService.Domain.csproj", "{292872F9-0EE7-41D2-BD16-B3D31B876634}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaymentService.Application", "PaymentService.Application\PaymentService.Application.csproj", "{60D8E73A-F8B6-44D8-A0D4-AB29AC147439}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PaymentService.Application", "PaymentService.Application\PaymentService.Application.csproj", "{60D8E73A-F8B6-44D8-A0D4-AB29AC147439}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaymentService.Infrastructure", "PaymentService.Infrastructure\PaymentService.Infrastructure.csproj", "{F13E2147-42F4-404C-9F7A-A32B463CD263}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PaymentService.Infrastructure", "PaymentService.Infrastructure\PaymentService.Infrastructure.csproj", "{F13E2147-42F4-404C-9F7A-A32B463CD263}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
