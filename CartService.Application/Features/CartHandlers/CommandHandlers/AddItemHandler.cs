@@ -6,19 +6,59 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace CartService.Application.Features.CartHandlers.CommandHandlers
 {
-    public class AddItemHandler(ICommandService commandService, ILogger<AddItemHandler> logger) : IRequestHandler<AddItemCommand, CartServiceResult>
+    public class AddItemHandler(ICommandService commandService, IAuthHelper authHelper, ILogger<AddItemHandler> logger) : IRequestHandler<AddItemCommand, CartServiceResult>
     {
         private readonly ICommandService _commandService = commandService ?? throw new ArgumentNullException(nameof(commandService));
         private readonly ILogger<AddItemHandler> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        private readonly IAuthHelper _authHelper = authHelper ?? throw new ArgumentNullException(nameof(authHelper));
 
-        public async Task<CartServiceResult> Handle(AddItemCommand request, CancellationToken cancellationToken)
+        public  async Task<CartServiceResult> Handle(AddItemCommand request, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            if(request.Token == null || request.AddItemDto == null)
+            {
+                return new CartServiceResult
+                {
+                    IsSuccess = false,
+                    Message = "Invalid request data."
+                };
+            }
+            try
+            {
+                var principal = _authHelper.GetClaimsPrincipalToken(request.Token);
+                if (principal == null)
+                {
+                    return new CartServiceResult
+                    {
+                        IsSuccess = false,
+                        Message = "Invalid token."
+                    };
+                }
+                var userIdClaim = principal.FindFirst(ClaimTypes.NameIdentifier);
+                if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out Guid userId))
+                {
+                    return new CartServiceResult
+                    {
+                        IsSuccess = false,
+                        Message = "Invalid user ID in token."
+                    };
+                }
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while adding an item to the cart.");
+                return new CartServiceResult
+                {
+                    IsSuccess = false,
+                    Message = "An error occurred while adding an item to the cart."
+                };
+            }
         }
     }
 }

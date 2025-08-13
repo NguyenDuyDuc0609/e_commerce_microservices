@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CartService.Application.Features.Dtos;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,7 +9,7 @@ namespace CartService.Application.Interfaces
 {
     public interface IQueryService
 
-    { 
-        Task<T> GetCartPage<T>(Guid userId, int pageNumber, int pageSize) where T : class;
+    {
+        Task<CartDto> GetCartPage(Guid userId, int pageNumber, int pageSize);
     }
 }

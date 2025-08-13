@@ -8,5 +8,5 @@ using System.Threading.Tasks;
 
 namespace CartService.Application.Features.Carts.Queries
 {
-    public record CartQuery : IRequest<CartServiceResult>;
+    public record CartQuery(string Token, int PageNumber, int PageSize) : IRequest<CartServiceResult>;
 }

@@ -11,7 +11,7 @@ namespace CartService.Infrastructure.Persistence
 {
     public class UnitOfWork(IRepository? repository, CartContext cartContext) : IUnitOfWork
     {
-        public IRepository? _repository { get; private set; } = repository ?? throw new ArgumentNullException(nameof(repository));
+        public IRepository? Repository { get; private set; } = repository ?? throw new ArgumentNullException(nameof(repository));
         public readonly CartContext _context = cartContext ?? throw new ArgumentNullException(nameof(cartContext));
         private IDbContextTransaction? _transaction;
 

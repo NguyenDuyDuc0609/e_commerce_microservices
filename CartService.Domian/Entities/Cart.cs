@@ -15,7 +15,7 @@ namespace CartService.Domain.Entities
         public decimal TotalAmount { get; private set; } = 0.0m;
 
         public ICollection<CartItem> CartItems { get; set; } = [];
-        private Cart() { }
+        public Cart() { }
         public Cart(Guid userId)
         {
             UserId = userId;
@@ -34,14 +34,19 @@ namespace CartService.Domain.Entities
             TotalAmount = CartItems.Sum(i => i.Price * i.Quantity);
             UpdatedAt = DateTime.UtcNow;
         }
-        public void RemoveItem(Guid productId)
+        public void RemoveItem(Guid cartItemId)
         {
-            var item = CartItems.FirstOrDefault(i => i.ProductId == productId);
+            var item = CartItems.FirstOrDefault(i => i.CartItemId == cartItemId);
             if (item != null)
             {
                 CartItems.Remove(item);
                 UpdateTotalAmount();
             }
+        }
+        public void ClearCart()
+        {
+            CartItems.Clear();
+            UpdateTotalAmount();
         }
     }
 }

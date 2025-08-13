@@ -8,7 +8,7 @@ namespace CartService.Application.Interfaces
 {
     public interface IUnitOfWork
     {
-        IRepository? _repository { get; }
+        IRepository? Repository { get; }
         Task CommitAsync();
         Task RollbackAsync();
         Task BeginTransactionAsync();

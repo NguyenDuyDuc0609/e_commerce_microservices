@@ -8,5 +8,5 @@ using System.Threading.Tasks;
 
 namespace CartService.Application.Features.Carts.Commands
 {
-    public record AddItemCommand : IRequest<CartServiceResult>;
+    public record AddItemCommand(string Token, AddItemDto AddItemDto) : IRequest<CartServiceResult>;
 }

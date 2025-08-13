@@ -10,10 +10,10 @@ namespace CartService.Application.Interfaces
 {
     public interface IRepository
     {
-        Task<List<CartDto>> GetCartPage(Guid userId, int pageNumber, int pageSize);
-        Task<bool> CreateCart(Cart cart);
-        Task<bool> UpdateCart(Cart cart);
-        Task<bool> DeleteCart(Guid cartId);
+        Task<CartDto> GetCartPage(Guid userId, int pageNumber, int pageSize);
+        Task<bool> AddItemToCart(Guid userId, CartItem cartItem);
+        Task<bool> DeleteItem(Guid userId, Guid itemId);
         Task<bool> ClearCart(Guid userId);
+        Task<CartDto> GetCartPage(Guid userId);
     }
 }

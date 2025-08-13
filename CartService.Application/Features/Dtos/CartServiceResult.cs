@@ -6,10 +6,18 @@ using System.Threading.Tasks;
 
 namespace CartService.Application.Features.Dtos
 {
-    public class CartServiceResult(bool isSuccess, string message)
+    public class CartServiceResult
     {
-        public bool IsSuccess { get; set; } = isSuccess;
-        public string Message { get; set; } = message;
-        public object? Data { get; set; } 
+        public bool IsSuccess { get; set; }
+        public string Message { get; set; }
+        public object? Data { get; set; }
+
+        public CartServiceResult() { }
+
+        public CartServiceResult(bool isSuccess, string message)
+        {
+            IsSuccess = isSuccess;
+            Message = message;
+        }
     }
 }

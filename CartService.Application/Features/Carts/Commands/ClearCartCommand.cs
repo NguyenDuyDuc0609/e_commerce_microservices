@@ -8,5 +8,5 @@ using System.Threading.Tasks;
 
 namespace CartService.Application.Features.Carts.Commands
 {
-    public record ClearCartCommand : IRequest<CartServiceResult>;
+    public record ClearCartCommand(string Token) : IRequest<CartServiceResult>;
 }

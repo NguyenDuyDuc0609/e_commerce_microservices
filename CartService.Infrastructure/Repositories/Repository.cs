@@ -15,12 +15,53 @@ namespace CartService.Infrastructure.Repositories
     {
         private readonly CartContext _context = context ?? throw new ArgumentNullException(nameof(context));
 
-        public Task<bool> ClearCart(Guid userId)
+        public async Task<bool> AddItemToCart(Guid userId, CartItem cartItem)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var cart = await _context.Carts
+                    .Include(c => c.CartItems)
+                    .FirstOrDefaultAsync(c => c.UserId == userId);
+                if (cart == null)
+                {
+                    cart = new Cart
+                    {
+                        UserId = userId,
+                    };
+                    _context.Carts.Add(cart);
+                }
+
+
+                cart.AddItem(cartItem.ProductId, cartItem.ProductName, cartItem.Price, cartItem.Quantity);
+
+                return await _context.SaveChangesAsync() > 0;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Failed to add item to cart", ex);
+            }
         }
 
-        public async Task<bool> CreateCart(Cart cart)
+        public async Task<bool> ClearCart(Guid userId)
+        {
+            try
+            {
+                var cartItems = await _context.CartItems
+                    .Where(ci => ci.Cart.UserId == userId)
+                    .ToListAsync();
+
+                if (cartItems.Count == 0) return false;
+
+                _context.CartItems.RemoveRange(cartItems);
+                return await _context.SaveChangesAsync() > 0;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Failed to clear cart", ex);
+            }
+        }
+
+        private async Task<bool> CreateCart(Cart cart)
         {
             if (cart == null)
             {
@@ -42,13 +83,29 @@ namespace CartService.Infrastructure.Repositories
             }
         }
 
-        public Task<bool> DeleteCart(Guid cartId)
+        public async Task<bool> DeleteItem(Guid userId, Guid itemId)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var cart = await _context.Carts
+                    .Include(c => c.CartItems)
+                    .FirstOrDefaultAsync(c => c.UserId == userId);
+                if (cart == null)
+                {
+                    throw new InvalidOperationException("Cart not found.");
+                }
+                cart.RemoveItem(itemId);
+                _context.Carts.Update(cart);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Failed to delete item from cart", ex);
+            }
         }
 
 
-        public async Task<List<CartDto>> GetCartPage(Guid userId, int pageNumber, int pageSize)
+        public async Task<CartDto> GetCartPage(Guid userId, int pageNumber, int pageSize)
         {
             var carts = await _context.Carts
                     .Where(c => c.UserId == userId)
@@ -71,18 +128,33 @@ namespace CartService.Infrastructure.Repositories
                             .Skip((pageNumber - 1) * pageSize)
                             .Take(pageSize)
                             .ToList()
-                    })
-                    .ToListAsync();
-            if(carts == null || carts.Count == 0)
-            {
-                throw new InvalidOperationException("No carts found for the specified user.");
-            }
-            return carts;
+                    }).FirstOrDefaultAsync();
+            return carts ?? throw new InvalidOperationException("Cart not found for the user.");
         }
 
-        public Task<bool> UpdateCart(Cart cart)
+        public async Task<CartDto> GetCartPage(Guid userId)
         {
-            throw new NotImplementedException();
+            var carts = await _context.Carts
+                    .Where(c => c.UserId == userId)
+                    .Select(c => new CartDto
+                    {
+                        CartId = c.CartId,
+                        UserId = c.UserId,
+                        TotalAmount = c.TotalAmount,
+                        Items = c.CartItems
+                            .Select(i => new ItemDto
+                            {
+                                CartItemId = i.CartItemId,
+                                CartId = i.CartId,
+                                ProductId = i.ProductId,
+                                ProductName = i.ProductName,
+                                Quantity = i.Quantity,
+                                Price = i.Price,
+                                StatusItem = i.StatusItem
+                            })
+                            .ToList()
+                    }).FirstOrDefaultAsync();
+            return carts ?? throw new InvalidOperationException("Cart not found for the user.");
         }
     }
 }

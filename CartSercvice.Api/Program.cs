@@ -1,6 +1,7 @@
 using CartService.Application.Interfaces;
 using CartService.Application.Services.CommandService;
 using CartService.Application.Services.QueryService;
+using CartService.Infrastructure.AuthHelper;
 using CartService.Infrastructure.Persistence;
 using CartService.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -20,6 +21,8 @@ builder.Services.AddScoped<IRepository, Repository>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<ICommandService, CommandService>();
 builder.Services.AddScoped<IQueryService, QueryService>();
+builder.Services.AddScoped<IAuthHelper, JWTHelper>();
+builder.Services.Decorate<IQueryService, QueryCacheService>();
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
