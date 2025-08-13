@@ -15,8 +15,13 @@ namespace CartService.Infrastructure.Repositories
     {
         private readonly CartContext _context = context ?? throw new ArgumentNullException(nameof(context));
 
-        public async Task<bool> AddItemToCart(Guid userId, CartItem cartItem)
+        public async Task<bool> AddItemToCart(Guid userId, AddItemDto itemDto)
         {
+            if(itemDto.ProductId == null || !Guid.TryParse(itemDto.ProductId, out var productId))
+            {
+                throw new ArgumentException("Invalid ProductId", nameof(itemDto.ProductId));
+            }
+
             try
             {
                 var cart = await _context.Carts
@@ -32,7 +37,7 @@ namespace CartService.Infrastructure.Repositories
                 }
 
 
-                cart.AddItem(cartItem.ProductId, cartItem.ProductName, cartItem.Price, cartItem.Quantity);
+                cart.AddItem(productId, itemDto.ProductName!, itemDto.Price, itemDto.Quantity);
 
                 return await _context.SaveChangesAsync() > 0;
             }

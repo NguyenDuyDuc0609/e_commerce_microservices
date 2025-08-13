@@ -8,5 +8,5 @@ using System.Threading.Tasks;
 
 namespace CartService.Application.Features.Carts.Commands
 {
-    public record DeleteItemCommand : IRequest<CartServiceResult>;
+    public record DeleteItemCommand(string Token, string ItemId) : IRequest<CartServiceResult>;
 }

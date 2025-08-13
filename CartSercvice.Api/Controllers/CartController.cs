@@ -1,5 +1,6 @@
 ﻿using CartService.Application.Features.Carts.Commands;
 using CartService.Application.Features.Carts.Queries;
+using CartService.Application.Features.Dtos;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -17,22 +18,22 @@ namespace CartSercvice.Api.Controllers
 
         [HttpPost("Add-item")]
         [Authorize(Roles = "Customer")]
-        public IActionResult AddToCart([FromBody] string item)
+        public async Task<IActionResult> AddToCart([FromBody] AddItemDto addItemDto)
         {
-            return Ok($"Item {item} added to cart");
+            var token = HttpContext.Request.Headers["Authorization"].ToString();
+            if (string.IsNullOrEmpty(token) || !token.StartsWith("Bearer "))
+            {
+                return Unauthorized("Authorization token is missing or invalid.");
+            }
+            var cleanToken = token.Replace("Bearer ", "");
+            var result = await _mediator.Send(new AddItemCommand(cleanToken, addItemDto));
+            if (result == null || !result.IsSuccess)
+            {
+                return BadRequest("Failed to add item to cart. Please try again.");
+            }
+            return Ok(result);
         }
-        [HttpPut("update-item/{id}")]
-        [Authorize(Roles = "Customer")]
-        public IActionResult UpdateCartItem(int id, [FromBody] string item)
-        {
-            return Ok($"Item {id} updated to {item}");
-        }
-        [HttpPost("checkout")]
-        [Authorize(Roles = "Customer")]
-        public IActionResult Checkout([FromBody] string paymentInfo)
-        {
-            return Ok($"Checkout completed with payment info: {paymentInfo}");
-        }
+
         [HttpPost("clear-cart")]
         [Authorize(Roles = "Customer")]
         public async Task<IActionResult> ClearCart()
@@ -40,11 +41,22 @@ namespace CartSercvice.Api.Controllers
             var result = await _mediator.Send(new ClearCartCommand(HttpContext.Request.Headers["Authorization"].ToString()));
             return Ok("Cart cleared successfully");
         }
-        [HttpDelete("delete-cart-item/{id}")]
+        [HttpDelete("delete-cart-item/{itemId}")]
         [Authorize(Roles = "Customer")]
-        public async Task< IActionResult> RemoveFromCart(int id)
+        public async Task<IActionResult> RemoveFromCart(string itemId)
         {
-            return Ok($"Item {id} removed from cart");
+           var token = HttpContext.Request.Headers["Authorization"].ToString();
+            if (string.IsNullOrEmpty(token) || !token.StartsWith("Bearer "))
+            {
+                return Unauthorized("Authorization token is missing or invalid.");
+            }
+            var cleanToken = token.Replace("Bearer ", "");
+            var result = await _mediator.Send(new DeleteItemCommand(cleanToken, itemId));
+            if (result == null)
+            {
+                return NotFound("Item not found in cart.");
+            }
+            return Ok("Item removed from cart successfully");
         }
         [HttpGet("cart-items/pageNumber={pageNumer}/{pageSize}")]
         [Authorize(Roles = "Customer")]

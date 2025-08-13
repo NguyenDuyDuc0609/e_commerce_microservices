@@ -1,6 +1,7 @@
 ﻿using CartService.Application.Features.Carts.Commands;
 using CartService.Application.Features.Dtos;
 using CartService.Application.Interfaces;
+using CartService.Domain.Entities;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using System;
@@ -48,7 +49,20 @@ namespace CartService.Application.Features.CartHandlers.CommandHandlers
                         Message = "Invalid user ID in token."
                     };
                 }
-
+                var result = await _commandService.AddItemToCart(userId, request.AddItemDto);
+                if (!result)
+                {
+                    return new CartServiceResult
+                    {
+                        IsSuccess = false,
+                        Message = "Failed to add item to the cart."
+                    };
+                }
+                return new CartServiceResult
+                {
+                    IsSuccess = true,
+                    Message = "Item added to the cart successfully."
+                };
             }
             catch (Exception ex)
             {

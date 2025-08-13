@@ -1,4 +1,5 @@
-﻿using CartService.Application.Interfaces;
+﻿using CartService.Application.Features.Dtos;
+using CartService.Application.Interfaces;
 using CartService.Domain.Entities;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
@@ -18,7 +19,7 @@ namespace CartService.Application.Services.CommandService
         private readonly IDistributedCache _cache = cache ?? throw new ArgumentNullException(nameof(cache));
         private readonly IDatabase _redis = connectionMultiplexer.GetDatabase() ?? throw new ArgumentNullException(nameof(connectionMultiplexer));
 
-        public async Task<bool> AddItemToCart(Guid userId, CartItem cartItem)
+        public async Task<bool> AddItemToCart(Guid userId, AddItemDto cartItem)
         {
             try
             {
@@ -35,7 +36,7 @@ namespace CartService.Application.Services.CommandService
 
                 var existingItems = await tran.SortedSetRangeByRankWithScoresAsync(keyCartItems, 0, -1);
                 var existingItemEntry = existingItems.FirstOrDefault(
-                    e => JsonSerializer.Deserialize<CartItem>(e.Element!)!.ProductId == cartItem.ProductId
+                    e => JsonSerializer.Deserialize<CartItem>(e.Element!)!.ProductId == Guid.Parse(cartItem.ProductId!)
                 );
 
                 if (existingItemEntry.Element.HasValue)
@@ -97,9 +98,25 @@ namespace CartService.Application.Services.CommandService
             }
         }
 
-        public Task<bool> DeleteItem(Guid useeId, Guid itemId)
+        public async Task<bool> DeleteItem(Guid userId, Guid itemId)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var result = await _commandService.DeleteItem(userId, itemId);
+                if (!result)
+                {
+                    throw new Exception("Failed to delete item from the cart in the database.");
+                }
+                var keyCartItems = $"cart:items:{userId}";
+                var keyCartInfo = $"cart:info:{userId}";
+                await _redis.KeyDeleteAsync(keyCartItems);
+                await _redis.KeyDeleteAsync(keyCartInfo);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while clearing the cart.", ex);
+            }
         }
     }
 }

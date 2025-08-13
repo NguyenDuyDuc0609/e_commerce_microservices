@@ -10,7 +10,7 @@ namespace CartService.Application.Interfaces
 {
     public interface ICommandService
     {
-        Task<bool> AddItemToCart(Guid userId, CartItem cartItem);
+        Task<bool> AddItemToCart(Guid userId, AddItemDto itemDto);
         Task<bool> DeleteItem(Guid userId, Guid itemId);
         Task<bool> ClearCart(Guid userId);
     }
